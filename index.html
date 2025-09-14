@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bài Thi Phỏng Vấn Medic</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .radio-label input[type="radio"] {
+      accent-color: #0ea5e9; /* Tailwind sky-500 */
+    }
+    textarea { resize: vertical; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-4xl">
+      <header class="bg-gradient-to-r from-sky-600 to-cyan-600 text-white rounded-xl shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-semibold flex items-center gap-3">
+          <span class="text-3xl">🩺</span>
+          BÀI THI PHỎNG VẤN TUYỂN DỤNG MEDIC
+        </h1>
+        <p class="mt-1 text-sm opacity-90">Vui lòng điền thông tin, trả lời các câu hỏi trắc nghiệm & tình huống ở dưới để được tuyển dụng vào ngành</p>
+      </header>
+
+      <main class="bg-white rounded-xl shadow-lg p-6">
+        <!-- Candidate Info -->
+        <section class="mb-6">
+          <h2 class="text-lg font-medium text-sky-600 mb-3">Thông tin ứng viên</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-600">Họ tên IC</label>
+              <input id="name" type="text" placeholder="Nhập họ tên IC" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:ring-2 focus:ring-sky-300 p-2" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600">Tuổi IC</label>
+              <input id="age" type="number" min="10" placeholder="Tuổi" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:ring-2 focus:ring-sky-300 p-2" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600">Discord ID</label>
+              <input id="discord" type="text" placeholder="username#1234" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:ring-2 focus:ring-sky-300 p-2" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="mb-6">
+          <h2 class="text-lg font-medium text-sky-600 mb-3">Phần 1: Trắc nghiệm (25 câu)</h2>
+          <div id="quiz" class="space-y-4"></div>
+        </section>
+
+        <!-- Scenarios -->
+        <section class="mb-6">
+          <h2 class="text-lg font-medium text-sky-600 mb-3">Phần 2: Tình huống (5 câu)</h2>
+          <div id="scenarios" class="space-y-4"></div>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <button id="submitBtn" onclick="submitExam()" class="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-md font-semibold shadow">
+            Nộp bài
+          </button>
+          <button id="resetBtn" onclick="resetForm()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-slate-700">
+            Đặt lại
+          </button>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="mt-6"></div>
+      </main>
+    </div>
+  </div>
+
+<script>
+/* ===== Data ===== */
+const questions = [
+  { q: "Khi đang OnDuty, medic có được rời vị trí mà không báo cáo không?", options: ["Có thể tuỳ ý", "Không được", "Chỉ khi báo cáo trước"], a: "C" },
+  { q: "Medic có được phép sử dụng xe cứu thương cho mục đích cá nhân?", options: ["Được", "Không", "Chỉ khi cấp trên cho phép"], a: "B" },
+  { q: "Khi giao tiếp với bệnh nhân, medic cần giữ thái độ như thế nào?", options: ["Lịch sự, tôn trọng", "Bình thường, tuỳ ý", "Cộc cằn"], a: "A" },
+  { q: "Nếu phát hiện đồng nghiệp vi phạm luật RP, bạn sẽ làm gì?", options: ["Bỏ qua", "Che giấu", "Báo cáo cho cấp trên"], a: "C" },
+  { q: "Trong ca trực, medic phải luôn bật gì để liên lạc?", options: ["Radio/Discord", "Điện thoại cá nhân", "Không cần"], a: "A" },
+  { q: "Có được phép bán thuốc men trong bệnh viện cho mục đích riêng?", options: ["Có", "Không", "Được nếu đồng ý"], a: "B" },
+  { q: "Khi bệnh nhân không hợp tác, medic nên xử lý thế nào?", options: ["Bỏ mặc", "Tranh cãi", "Giữ bình tĩnh, thuyết phục"], a: "C" },
+  { q: "Medic có được phép spam radio không?", options: ["Có", "Không", "Tuỳ thích"], a: "B" },
+  { q: "Xe cứu thương sau khi dùng xong cần phải làm gì?", options: ["Trả về bãi đậu", "Để nguyên ngoài đường", "Cho người khác mượn"], a: "A" },
+  { q: "Trong ca trực, medic ưu tiên cứu ai trước?", options: ["Người quen", "Người bình thường", "Người nguy kịch"], a: "C" },
+  { q: "Medic có được phép vào hiện trường khi PD chưa cho phép?", options: ["Có", "Không", "Tuỳ ý"], a: "B" },
+  { q: "Hồ sơ bệnh án phải được bảo mật hay công khai?", options: ["Bảo mật", "Công khai", "Tuỳ ý"], a: "A" },
+  { q: "Medic có quyền được tranh cãi với bệnh nhân không?", options: ["Có", "Tuỳ ý", "Không"], a: "C" },
+  { q: "Khi thiếu nhân lực, medic phải làm gì?", options: ["Báo cáo cấp trên, sắp xếp hợp lý", "Tự ý nghỉ", "Bỏ qua"], a: "A" },
+  { q: "Medic có được phép tấn công người khác trong bệnh viện?", options: ["Có nếu bị chọc", "Không", "Tuỳ thích"], a: "B" },
+  { q: "Sử dụng thuốc y tế của tổ chức cho mục đích cá nhân có bị phạt không?", options: ["Không", "Tuỳ ý", "Có"], a: "C" },
+  { q: "Khi bệnh nhân từ chối hợp tác RP, medic xử lý thế nào?", options: ["Báo cáo cấp trên", "Tranh cãi", "Bỏ mặc"], a: "A" },
+  { q: "Medic có được phép kinh doanh thuốc bên ngoài không?", options: ["Có", "Không", "Tuỳ thích"], a: "B" },
+  { q: "Khi PD yêu cầu medic rời hiện trường, medic phải làm gì?", options: ["Ở lại", "Cãi lại", "Tuân thủ"], a: "C" },
+  { q: "Medic có trách nhiệm hỗ trợ newbie không?", options: ["Có", "Không", "Tuỳ thích"], a: "A" },
+  { q: "Khi radio nhiều người nói cùng lúc, medic nên?", options: ["Nói chen vào", "Giữ im lặng chờ", "Tắt radio"], a: "B" },
+  { q: "Medic có thể từ chối cứu bệnh nhân vì mâu thuẫn cá nhân không?", options: ["Có", "Tuỳ ý", "Không"], a: "C" },
+  { q: "Trang phục medic khi OnDuty phải như thế nào?", options: ["Đúng quy định", "Tuỳ thích", "Không quan trọng"], a: "A" },
+  { q: "Có được phép sử dụng vũ khí khi đang OnDuty medic không?", options: ["Có", "Không", "Tuỳ ý"], a: "B" },
+  { q: "Medic có được phép bỏ trực khi chưa báo cáo không?", options: ["Có", "Không", "Chỉ khi cấp trên cho phép"], a: "C" }
+];
+
+const scenarios = [
+  "Bạn đang cứu bệnh nhân, nhưng PD yêu cầu di chuyển gấp, bạn xử lý thế nào?",
+  "Khi có nhiều bệnh nhân cùng lúc, bạn sẽ ưu tiên ai trước? Vì sao?",
+  "Nếu bệnh nhân không hợp tác, la hét, bạn xử lý thế nào?",
+  "Trong trường hợp thiếu nhân lực, bạn sẽ sắp xếp công việc ra sao?",
+  "Nếu bệnh nhân tử vong liên tục do troll RP, bạn sẽ làm gì?"
+];
+
+/* ===== Render ===== */
+function renderQuiz() {
+  const quizDiv = document.getElementById('quiz');
+  quizDiv.innerHTML = '';
+  questions.forEach((item, i) => {
+    const qCard = document.createElement('div');
+    qCard.className = 'p-4 bg-white border rounded-lg shadow-sm';
+    qCard.innerHTML = `
+      <p class="font-medium text-slate-700 mb-2">Câu ${i+1}: ${item.q}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <label class="radio-label flex items-center gap-2 p-2 border rounded-md">
+          <input type="radio" name="q${i}" value="A"> A. ${item.options[0]}
+        </label>
+        <label class="radio-label flex items-center gap-2 p-2 border rounded-md">
+          <input type="radio" name="q${i}" value="B"> B. ${item.options[1]}
+        </label>
+        <label class="radio-label flex items-center gap-2 p-2 border rounded-md">
+          <input type="radio" name="q${i}" value="C"> C. ${item.options[2]}
+        </label>
+      </div>
+    `;
+    quizDiv.appendChild(qCard);
+  });
+}
+
+function renderScenarios() {
+  const sDiv = document.getElementById('scenarios');
+  sDiv.innerHTML = '';
+  scenarios.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'p-4 bg-white border rounded-lg shadow-sm';
+    div.innerHTML = `
+      <p class="font-medium text-slate-700 mb-2">Tình huống ${i+1}</p>
+      <p class="text-slate-600 mb-2">${s}</p>
+      <textarea name="s${i}" rows="3" class="w-full p-2 border rounded-md" placeholder="Nhập câu trả lời..."></textarea>
+    `;
+    sDiv.appendChild(div);
+  });
+}
+
+renderQuiz();
+renderScenarios();
+
+/* ===== Nộp bài ===== */
+function submitExam() {
+  let score = 0;
+  questions.forEach((item,i)=>{
+    const ans=document.querySelector(`input[name=q${i}]:checked`);
+    if(ans && ans.value===item.a) score++;
+  });
+
+  // lấy thông tin ứng viên
+  const name = document.getElementById("name").value || "Chưa nhập";
+  const age = document.getElementById("age").value || "Chưa nhập";
+  const discord = document.getElementById("discord").value || "Chưa nhập";
+
+  // lấy trả lời tình huống
+  let scenariosText = "";
+  scenarios.forEach((s,i)=>{
+    const ans=document.querySelector(`textarea[name=s${i}]`).value || "(Chưa trả lời)";
+    scenariosText += `
+      <div class="mb-3">
+        <p class="font-medium text-slate-700">Tình huống ${i+1}: ${s}</p>
+        <p class="text-slate-600">Trả lời: ${ans}</p>
+      </div>
+    `;
+  });
+
+  // hiển thị kết quả
+  document.getElementById("result").innerHTML = `
+    <div class="p-4 border rounded-lg bg-sky-50">
+      <p class="font-semibold text-sky-700 mb-2">Ứng viên: ${name} | Tuổi IC: ${age} | Discord: ${discord}</p>
+      <p class="text-sky-900 font-medium mb-3">Điểm trắc nghiệm: ${score}/${questions.length}</p>
+      <h3 class="font-semibold text-slate-700 mb-2">Phần trả lời tình huống:</h3>
+      ${scenariosText}
+    </div>
+  `;
+}
+
+/* Reset */
+function resetForm() {
+  document.getElementById("name").value="";
+  document.getElementById("age").value="";
+  document.getElementById("discord").value="";
+  renderQuiz();
+  renderScenarios();
+  document.getElementById("result").innerHTML="";
+}
+</script>
+</body>
+</html>
