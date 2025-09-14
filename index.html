@@ -196,27 +196,4 @@ function submitQuiz() {
 }
 </script>
 </body>
-</html>  });
-
-  const name = document.getElementById("name").value;
-  const age = document.getElementById("age").value;
-  const discord = document.getElementById("discord").value;
-
-  let resultText = `Ứng viên: ${name}\nTuổi IC: ${age}\nDiscord: ${discord}\n\nĐiểm trắc nghiệm: ${score}/${questions.length}\n\n--- Câu trả lời tình huống ---\n`;
-  scenarios.forEach((s, i) => {
-    const ans = document.querySelector(`textarea[name="s${i}"]`).value;
-    resultText += `Tình huống ${i+1}: ${s}\nTrả lời: ${ans}\n\n`;
-  });
-
-  document.getElementById("result").innerText = resultText;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.setFontSize(12);
-  doc.text("PHIẾU PHỎNG VẤN TUYỂN DỤNG MEDIC", 10, 10);
-  doc.text(resultText, 10, 20);
-  doc.save(`${name}_phongvan_medic.pdf`);
-}
-</script>
-</body>
 </html>
