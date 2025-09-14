@@ -5,28 +5,106 @@
   <title>Phỏng Vấn Tuyển Dụng Medic</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
-    h1, h2 { text-align: center; }
-    .question { margin: 15px 0; }
-    .options label { display: block; margin-left: 20px; }
-    textarea { width: 100%; min-height: 80px; margin-top: 5px; }
-    button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #0077cc;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 4px solid #005fa3;
+    }
+    h1 { margin: 0; font-size: 26px; }
+    h2 { margin: 10px 0 0; font-size: 18px; font-weight: normal; }
+
+    main {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .info input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .question {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .question p { margin: 0 0 10px; font-weight: bold; }
+    .options label {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .options input { margin-right: 8px; }
+    .options label:hover {
+      background: #f0f8ff;
+    }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px;
+      resize: vertical;
+    }
+    button {
+      display: block;
+      width: 100%;
+      background: #28a745;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #218838; }
+    #result {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      white-space: pre-line;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
-  <h1>PHỎNG VẤN TUYỂN DỤNG MEDIC</h1>
-  <h2>Bài thi 30 câu (25 trắc nghiệm + 5 tình huống)</h2>
+  <header>
+    <h1>PHỎNG VẤN TUYỂN DỤNG MEDIC</h1>
+    <h2>Bài thi 30 câu (25 trắc nghiệm + 5 tình huống)</h2>
+  </header>
 
-  <div>
-    <label>Tên nhân vật (IC): <input type="text" id="name"></label><br>
-    <label>Tuổi nhân vật: <input type="number" id="age"></label><br>
-    <label>Discord ID: <input type="text" id="discord"></label>
-  </div>
+  <main>
+    <section class="info">
+      <label>Tên nhân vật (IC): <input type="text" id="name"></label>
+      <label>Tuổi nhân vật: <input type="number" id="age"></label>
+      <label>Discord ID: <input type="text" id="discord"></label>
+    </section>
 
-  <form id="quizForm"></form>
-  <button type="button" onclick="submitQuiz()">Nộp bài</button>
+    <form id="quizForm"></form>
+    <button type="button" onclick="submitQuiz()">Nộp bài & Xuất PDF</button>
 
-  <div id="result"></div>
+    <div id="result"></div>
+  </main>
 
 <script>
 const questions = [
@@ -75,7 +153,7 @@ window.onload = () => {
     const div = document.createElement("div");
     div.className = "question";
     const shuffled = shuffle([...q.options]);
-    div.innerHTML = `<p><b>Câu ${i+1}:</b> ${q.q}</p>`;
+    div.innerHTML = `<p>Câu ${i+1}: ${q.q}</p>`;
     shuffled.forEach(opt => {
       div.innerHTML += `<div class="options"><label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label></div>`;
     });
@@ -85,7 +163,7 @@ window.onload = () => {
   scenarios.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "question";
-    div.innerHTML = `<p><b>Tình huống ${i+1}:</b> ${s}</p><textarea name="s${i}"></textarea>`;
+    div.innerHTML = `<p>Tình huống ${i+1}: ${s}</p><textarea name="s${i}"></textarea>`;
     form.appendChild(div);
   });
 };
@@ -96,6 +174,29 @@ function submitQuiz() {
     const answer = document.querySelector(`input[name="q${i}"]:checked`);
     if(answer && answer.value === q.answer) score++;
   });
+
+  const name = document.getElementById("name").value;
+  const age = document.getElementById("age").value;
+  const discord = document.getElementById("discord").value;
+
+  let resultText = `Ứng viên: ${name}\nTuổi IC: ${age}\nDiscord: ${discord}\n\nĐiểm trắc nghiệm: ${score}/${questions.length}\n\n--- Câu trả lời tình huống ---\n`;
+  scenarios.forEach((s, i) => {
+    const ans = document.querySelector(`textarea[name="s${i}"]`).value;
+    resultText += `Tình huống ${i+1}: ${s}\nTrả lời: ${ans}\n\n`;
+  });
+
+  document.getElementById("result").innerText = resultText;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(12);
+  doc.text("PHIẾU PHỎNG VẤN TUYỂN DỤNG MEDIC", 10, 10);
+  doc.text(resultText, 10, 20);
+  doc.save(`${name}_phongvan_medic.pdf`);
+}
+</script>
+</body>
+</html>  });
 
   const name = document.getElementById("name").value;
   const age = document.getElementById("age").value;
