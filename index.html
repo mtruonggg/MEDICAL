@@ -1,9 +1,9 @@
-&lt;!DOCTYPE html&gt;
-&lt;html lang="vi"&gt;
-&lt;head&gt;
-  &lt;meta charset="UTF-8"&gt;
-  &lt;title&gt;Bài Test Tuyển Medic RP&lt;/title&gt;
-  &lt;style&gt;
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Bài Test Tuyển Medic RP</title>
+  <style>
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
@@ -99,43 +99,43 @@
       background:#fff;
       color:#000;
     }
-  &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;div class="container"&gt;
-    &lt;h1&gt;📋 Đơn Tuyển Medic RP&lt;/h1&gt;
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Đơn Tuyển Medic RP</h1>
 
-    &lt;!-- Form thông tin ứng viên --&gt;
-    &lt;div id="infoForm"&gt;
-      &lt;input type="text" id="icName" placeholder="Tên IC (Trong game)" required&gt;
-      &lt;input type="text" id="oocName" placeholder="Tên OOC (Ngoài đời)" required&gt;
-      &lt;input type="number" id="age" placeholder="Tuổi" required&gt;
-      &lt;select id="gender"&gt;
-        &lt;option value=""&gt;-- Giới tính --&lt;/option&gt;
-        &lt;option&gt;Nam&lt;/option&gt;
-        &lt;option&gt;Nữ&lt;/option&gt;
-        &lt;option&gt;Khác&lt;/option&gt;
-      &lt;/select&gt;
-      &lt;input type="text" id="discord" placeholder="Discord ID (Ví dụ: Ten#1234)" required&gt;
-      &lt;textarea id="exp" rows="3" placeholder="Kinh nghiệm RP (thời gian, tổ chức đã tham gia...)"&gt;&lt;/textarea&gt;
-      &lt;button onclick="startQuiz()"&gt;Bắt đầu Test&lt;/button&gt;
-    &lt;/div&gt;
+    <!-- Form thông tin ứng viên -->
+    <div id="infoForm">
+      <input type="text" id="icName" placeholder="Tên IC (Trong game)" required>
+      <input type="text" id="oocName" placeholder="Tên OOC (Ngoài đời)" required>
+      <input type="number" id="age" placeholder="Tuổi" required>
+      <select id="gender">
+        <option value="">-- Giới tính --</option>
+        <option>Nam</option>
+        <option>Nữ</option>
+        <option>Khác</option>
+      </select>
+      <input type="text" id="discord" placeholder="Discord ID (Ví dụ: Ten#1234)" required>
+      <textarea id="exp" rows="3" placeholder="Kinh nghiệm RP (thời gian, tổ chức đã tham gia...)"></textarea>
+      <button onclick="startQuiz()">Bắt đầu Test</button>
+    </div>
 
-    &lt;!-- Quiz --&gt;
-    &lt;form id="quizForm" style="display:none"&gt;&lt;/form&gt;
-    &lt;button id="submitBtn" style="display:none" onclick="submitQuiz(event)"&gt;Nộp bài&lt;/button&gt;
-  &lt;/div&gt;
+    <!-- Quiz -->
+    <form id="quizForm" style="display:none"></form>
+    <button id="submitBtn" style="display:none" onclick="submitQuiz(event)">Nộp bài</button>
+  </div>
 
-  &lt;!-- Popup cảnh báo --&gt;
-  &lt;div id="popup"&gt;
-    &lt;div class="content"&gt;
-      &lt;h3&gt;⚠️ Thông báo&lt;/h3&gt;
-      &lt;p&gt;Vui lòng không để trống bất kỳ thông tin nào!&lt;/p&gt;
-      &lt;button onclick="closePopup()"&gt;Đóng&lt;/button&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
+  <!-- Popup cảnh báo -->
+  <div id="popup">
+    <div class="content">
+      <h3>⚠️ Thông báo</h3>
+      <p>Vui lòng không để trống bất kỳ thông tin nào!</p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
 
-&lt;script&gt;
+<script>
 /* ====== Câu hỏi trắc nghiệm (25 câu) ====== */
 const questions = [
   { q: "FearRP nghĩa là gì trong server RP?", options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
@@ -188,41 +188,41 @@ function startQuiz() {
   }
 
   document.querySelectorAll("#infoForm input, #infoForm select, #infoForm textarea, #infoForm button")
-    .forEach(el =&gt; el.disabled = true);
+    .forEach(el => el.disabled = true);
   document.getElementById("infoForm").style.opacity = "0.6";
 
   const quizForm = document.getElementById("quizForm");
   quizForm.style.display = "block";
   document.getElementById("submitBtn").style.display = "inline-block";
 
-  questions.forEach((q, i) =&gt; {
+  questions.forEach((q, i) => {
     const div = document.createElement("div");
     div.className = "question";
-    div.innerHTML = `&lt;p&gt;&lt;b&gt;${i+1}. ${q.q}&lt;/b&gt;&lt;/p&gt;`;
+    div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
     const opts = document.createElement("div");
     opts.className = "options";
 
-    const shuffled = q.options.map((opt, idx) =&gt; ({ opt, idx }));
-    shuffled.sort(() =&gt; Math.random() - 0.5);
+    const shuffled = q.options.map((opt, idx) => ({ opt, idx }));
+    shuffled.sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((item) =&gt; {
+    shuffled.forEach((item) => {
       const isCorrect = item.idx === q.a ? 1 : 0;
       opts.innerHTML += `
-        &lt;label&gt;
-          &lt;input type="radio" name="q${i}" data-correct="${isCorrect}"&gt;
+        <label>
+          <input type="radio" name="q${i}" data-correct="${isCorrect}">
           ${item.opt}
-        &lt;/label&gt;`;
+        </label>`;
     });
 
     div.appendChild(opts);
     quizForm.appendChild(div);
   });
 
-  scenarios.forEach((s, i) =&gt; {
+  scenarios.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "question";
-    div.innerHTML = `&lt;p&gt;&lt;b&gt;${questions.length+i+1}. ${s.q}&lt;/b&gt;&lt;/p&gt;
-                     &lt;textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."&gt;&lt;/textarea&gt;`;
+    div.innerHTML = `<p><b>${questions.length+i+1}. ${s.q}</b></p>
+                     <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
     quizForm.appendChild(div);
   });
 }
@@ -233,16 +233,16 @@ function submitQuiz(e) {
 
   let score = 0, correctCount = 0;
 
-  questions.forEach((q, i) =&gt; {
+  questions.forEach((q, i) => {
     const selected = document.querySelector(`input[name="q${i}"]:checked`);
-    if (selected &amp;&amp; selected.dataset.correct === "1") {
+    if (selected && selected.dataset.correct === "1") {
       score++; correctCount++;
     }
   });
 
-  scenarios.forEach((s, i) =&gt; {
+  scenarios.forEach((s, i) => {
     const ans = document.querySelector(`textarea[name="s${i}"]`).value.toLowerCase();
-    if (s.keywords.some(k =&gt; ans.includes(k))) score += s.max;
+    if (s.keywords.some(k => ans.includes(k))) score += s.max;
   });
 
   const info = {
@@ -263,6 +263,6 @@ function submitQuiz(e) {
 function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+</script>
+</body>
+  </html>
