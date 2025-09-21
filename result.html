@@ -16,7 +16,7 @@
     overflow: hidden;
   }
   canvas {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     z-index: 0;
@@ -33,7 +33,7 @@
     z-index: 1;
   }
   h1 {
-    font-size: 2em;
+    font-size: 2.2em;
     background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -49,9 +49,12 @@
     padding: 20px;
     background: rgba(255,255,255,0.05);
     border-radius: 15px;
+    font-size: 1.1em;
+    line-height: 1.6em;
   }
+  .info p { margin: 6px 0; }
   .result {
-    font-size: 1.4em;
+    font-size: 1.5em;
     margin: 20px 0;
     padding: 15px;
     border-radius: 12px;
@@ -82,175 +85,275 @@
     transform: scale(1.1);
     box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
   }
+
+  /* Popup điểm tuyệt đối */
+  .popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3em;
+    font-weight: bold;
+    background: linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    animation: slideIn 6s linear forwards;
+  }
+  @keyframes slideIn {
+    0% { transform: translateX(-100%) scale(0.8); opacity: 0; }
+    20% { opacity: 1; }
+    50% { transform: translateX(0) scale(1.1); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateX(100%) scale(0.8); opacity: 0; }
+  }
 </style>
 </head>
 <body>
-
 <canvas id="fireworksCanvas"></canvas>
-<audio id="fireworkSound" src="https://files.catbox.moe/jy7694.mp3"></audio>
+
+<!-- ÂM THANH -->
+<audio id="launchSound" src="bbang-47623.mp3"></audio>
+<audio id="whistleSound" src="whistlingrocket_2-106971.mp3"></audio>
+<audio id="wooshSound" src="woosh-104586.mp3"></audio>
+<audio id="explosionBig" src="big-boom-14752.mp3"></audio>
+<audio id="explosionCluster" src="firework-cluster-90480.mp3"></audio>
+<audio id="awardMusic" src="award.mp3"></audio>
 
 <div class="container">
-  <h1>📊 Kết Quả Phỏng Vấn Medic </h1>
+  <h1>⚕️ KẾT QUẢ PHỎNG VẤN MEDIC ⚕️</h1>
   <div id="candidateInfo" class="info"></div>
   <div id="scoreResult" class="result"></div>
   <button onclick="window.location.href='index.html'">🔄 Làm lại bài test</button>
 </div>
 
 <script>
-// ====== Dữ liệu điểm
+// ====== Hiển thị kết quả ======
 const data = JSON.parse(localStorage.getItem("quizResult"));
-const totalQuestions = 25; 
-const scenarioCount = 5; 
-const scenarioPoint = 2; 
 
+// tổng số câu
+const totalQuestions = 25;
+const scenarioCount = 5;
+
+// mỗi câu = 2 điểm
+const questionPoint = 1;
+const scenarioPoint = 2;
+
+// điểm tối đa
+const maxScore = totalQuestions * questionPoint + scenarioCount * scenarioPoint; // = 35
 if (!data) {
   document.getElementById("candidateInfo").innerHTML = "<p>❌ Không có dữ liệu. Vui lòng làm lại bài test.</p>";
 } else {
-  const scenarioScore = scenarioCount * scenarioPoint;
-  const totalScore = data.score + scenarioScore;
+  const questionScore = (data.correctCount || 0) * questionPoint;
+  const scenarioScore = (data.scenarioCorrect || 0) * scenarioPoint;
+  const totalScore = questionScore + scenarioScore;
 
   document.getElementById("candidateInfo").innerHTML = `
-    <p><b>👤 IC Name:</b> ${data.icName}</p>
-    <p><b>🌐 OOC Name:</b> ${data.oocName}</p>
-    <p><b>🎂 Tuổi:</b> ${data.age}</p>
-    <p><b>⚧ Giới tính:</b> ${data.gender}</p>
-    <p><b>💬 Discord:</b> ${data.discord}</p>
-    <p><b>📖 Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
-    <p><b>✅ Câu trắc nghiệm đúng:</b> ${data.correctCount}/${totalQuestions}</p>
-    <p><b>⭐ Tổng điểm:</b> ${totalScore}</p>
+    <p>👤 <b>IC Name:</b> ${data.icName}</p>
+    <p>🌐 <b>OOC Name:</b> ${data.oocName}</p>
+    <p>🎂 <b>Tuổi:</b> ${data.age}</p>
+    <p>⚧ <b>Giới tính:</b> ${data.gender}</p>
+    <p>💬 <b>Discord:</b> ${data.discord}</p>
+    <p>📖 <b>Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
+    <p>✅ <b>Câu trắc nghiệm đúng:</b> ${data.correctCount}/${totalQuestions} (${questionScore} điểm)</p>
+    <p>🎭 <b>Tình huống đúng:</b> ${data.scenarioCorrect || 0}/${scenarioCount} (${scenarioScore} điểm)</p>
+    <p>⭐ <b>Tổng điểm:</b> ${totalScore}/${maxScore}</p>
   `;
 
   const passScore = 35;
   const resultBox = document.getElementById("scoreResult");
+
   if (totalScore >= passScore) {
     resultBox.className = "result pass";
-    resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${totalScore} điểm.`;
+    resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${totalScore}/${maxScore} điểm.`;
     startFireworks();
+
+    if (totalScore === maxScore) {
+      showPerfectPopup();
+      const awardMusic = document.getElementById("awardMusic");
+      awardMusic.play().catch(()=>{});
+      setTimeout(()=>{
+        awardMusic.pause();
+        awardMusic.currentTime = 0;
+      },15000);
+    }
   } else {
     resultBox.className = "result fail";
-    resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${totalScore} điểm.`;
+    resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${totalScore}/${maxScore} điểm.`;
   }
 }
 
-// ====== Canvas pháo hoa
-const canvas = document.getElementById('fireworksCanvas');
-const ctx = canvas.getContext('2d');
+// ================= FIREWORKS =================
+const canvas = document.getElementById("fireworksCanvas");
+const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 
-class Particle {
-  constructor(x, y, color, speed, angle, size, gravity) {
-    this.x = x; this.y = y;
-    this.color = color;
-    this.speed = speed;
-    this.angle = angle;
-    this.alpha = 1;
-    this.size = size;
-    this.gravity = gravity;
-    this.friction = 0.95;
-  }
-  update() {
-    this.speed *= this.friction;
-    this.x += Math.cos(this.angle) * this.speed;
-    this.y += Math.sin(this.angle) * this.speed + this.gravity;
-    this.alpha -= 0.015;
-  }
-  draw() {
-    ctx.globalAlpha = this.alpha;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-}
-
-class FloatingText {
-  constructor(text, x, y, color, size) {
-    this.text = text;
-    this.x = x;
-    this.y = y;
-    this.alpha = 1;
-    this.color = color;
-    this.size = size;
-  }
-  update() { this.y -= 1; this.alpha -= 0.01; }
-  draw() {
-    ctx.globalAlpha = this.alpha;
-    ctx.fillStyle = this.color;
-    ctx.font = `${this.size}px Arial`;
-    ctx.fillText(this.text, this.x, this.y);
-    ctx.globalAlpha = 1;
-  }
-}
-
+let fireworks = [];
 let particles = [];
-let texts = [];
 
-function createFirework(type){
-  const x = Math.random() * canvas.width;
-  const y = Math.random() * canvas.height/2;
-  const colors = ['#ff0040','#00ff99','#00f5ff','#ffcc00','#ff00ff','#ff6600','#00ffff'];
-  const sound = document.getElementById('fireworkSound');
-  sound.currentTime = 0;
-  sound.play();
+// ================== ÂM THANH ==================
+function playSound(id) {
+  const s = document.getElementById(id);
+  if (!s) return;
+  const clone = s.cloneNode();
+  clone.volume = 0.8;
+  clone.play().catch(()=>{});
+}
 
-  for(let i=0;i<100;i++){
-    let angle, radius = Math.random()*50+50;
-    if(type==="heart"){
-      angle = i * 0.1;
-      let px = 16*Math.pow(Math.sin(angle),3);
-      let py = 13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle);
-      particles.push(new Particle(x+px*2,y-py*2,colors[Math.floor(Math.random()*colors.length)],Math.random()*3+2,Math.random()*Math.PI*2,2,0.1));
-    } else if(type==="star"){
-      angle = i * (Math.PI/5);
-      let px = Math.cos(angle) * 30;
-      let py = Math.sin(angle) * 30;
-      particles.push(new Particle(x+px,y+py,colors[Math.floor(Math.random()*colors.length)],Math.random()*3+2,Math.random()*Math.PI*2,2,0.1));
-    } else { 
-      const angle = Math.random()*Math.PI*2;
-      const speed = Math.random()*6+2;
-      particles.push(new Particle(x,y,colors[Math.floor(Math.random()*colors.length)],speed,angle,2,0.2));
+window.addEventListener("load", ()=>{
+  ["launchSound","whistleSound","wooshSound","explosionBig","explosionCluster","awardMusic"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.load();
+  });
+});
+
+// ================== FIREWORK ==================
+class Firework {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height;
+    this.targetY = Math.random() * (canvas.height/2);
+    this.speed = 7 + Math.random()*3;
+    this.trail = [];
+    this.exploded = false;
+
+    playSound("launchSound");
+    playSound("whistleSound");
+    playSound("wooshSound");
+  }
+
+  update() {
+    if (!this.exploded) {
+      this.trail.push({x:this.x,y:this.y});
+      if(this.trail.length>10) this.trail.shift();
+      this.y -= this.speed;
+
+      if (this.y <= this.targetY) {
+        this.explode();
+        this.exploded = true;
+      }
     }
   }
 
-  // Text bay lên
-  for(let i=0;i<3;i++){
-    texts.push(new FloatingText("🎉 Chúc Mừng bạn đã đậu", x + (Math.random()*50-25), y + (Math.random()*50-25), colors[Math.floor(Math.random()*colors.length)], 30+Math.random()*20));
+  draw() {
+    ctx.beginPath();
+    ctx.moveTo(this.x,this.y);
+    for(let i=this.trail.length-1;i>=0;i--){
+      const p=this.trail[i];
+      ctx.lineTo(p.x,p.y);
+    }
+    ctx.strokeStyle="rgba(255,255,200,0.8)";
+    ctx.lineWidth=2;
+    ctx.stroke();
+  }
+
+  explode() {
+    const count = 24+Math.random()*25;
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        particles.push(new Particle(this.x,this.y));
+      },i*20);
+    }
+    if(Math.random()>0.5) playSound("explosionBig");
+    else playSound("explosionCluster");
   }
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+// ================== PARTICLE ==================
+class Particle {
+  constructor(x,y){
+    this.x=x; this.y=y;
+    this.angle=Math.random()*Math.PI*2;
+    this.speed=Math.random()*6+2;
+    this.life=1;
+    this.decay=Math.random()*0.02+0.015;
+    this.size=Math.random()*2+1;
+
+    const colors=[
+      ["#ffcc00","#ff3300"],
+      ["#66ff66","#33ccff"],
+      ["#ff99ff","#cc00ff"],
+      ["#ffffff","#ffff99"]
+    ];
+    this.gradientColors=colors[Math.floor(Math.random()*colors.length)];
+  }
+
+  update(){
+    this.x+=Math.cos(this.angle)*this.speed;
+    this.y+=Math.sin(this.angle)*this.speed+0.2;
+    this.speed*=0.97;
+    this.life-=this.decay;
+  }
+
+  draw(){
+    if(this.life<=0) return;
+    ctx.globalAlpha=this.life;
+    const gradient=ctx.createLinearGradient(
+      this.x,this.y,
+      this.x-Math.cos(this.angle)*this.size*8,
+      this.y-Math.sin(this.angle)*this.size*8
+    );
+    gradient.addColorStop(0,"#fff");
+    gradient.addColorStop(0.3,this.gradientColors[0]);
+    gradient.addColorStop(1,this.gradientColors[1]);
+
+    ctx.strokeStyle=gradient;
+    ctx.lineWidth=this.size;
+    ctx.beginPath();
+    ctx.moveTo(this.x,this.y);
+    ctx.lineTo(
+      this.x-Math.cos(this.angle)*this.size*8,
+      this.y-Math.sin(this.angle)*this.size*8
+    );
+    ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+}
+
+// ================== LOOP ==================
+function animate(){
+  ctx.fillStyle="rgba(0,0,0,0.2)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  fireworks.forEach((fw,i)=>{
+    fw.update(); fw.draw();
+    if(fw.exploded) fireworks.splice(i,1);
+  });
 
   particles.forEach((p,i)=>{
     p.update(); p.draw();
-    if(p.alpha<=0) particles.splice(i,1);
+    if(p.life<=0) particles.splice(i,1);
   });
 
-  texts.forEach((t,i)=>{
-    t.update(); t.draw();
-    if(t.alpha<=0) texts.splice(i,1);
-  });
+  requestAnimationFrame(animate);
 }
+animate();
 
 function startFireworks(){
-  const types = ["circle","heart","star","circle","heart","star","circle"];
-  let count=0;
-  function autoFire(){
-    if(count<types.length){
-      createFirework(types[count]);
-      count++;
-      setTimeout(autoFire,700);
-    }
-  }
-  autoFire();
+  let count = 0;
+  const interval = setInterval(()=>{
+    fireworks.push(new Firework());
+    count++;
+    if (count > 8) clearInterval(interval); 
+  },1500);
 }
 
-animate();
+// ====== Popup điểm tuyệt đối ======
+function showPerfectPopup() {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.textContent = "🌟 ĐẠT ĐIỂM TUYỆT ĐỐI 35/35 🌟";
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 7000);
+}
 </script>
 </body>
-</html>
+  </html>
