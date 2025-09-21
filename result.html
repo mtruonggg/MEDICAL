@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Kết Quả Bài Test Medic RP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      padding: 30px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 3s infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00f5ff; }
+      to   { text-shadow: 0 0 30px #ff00ff; }
+    }
+    .info {
+      text-align: left;
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+    }
+    .result {
+      font-size: 1.4em;
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .pass {
+      background: rgba(0,255,150,0.2);
+      color: #00ff9d;
+      box-shadow: 0 0 20px #00ff9d;
+    }
+    .fail {
+      background: rgba(255,0,80,0.2);
+      color: #ff4b2b;
+      box-shadow: 0 0 20px #ff4b2b;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 35px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Kết Quả Bài Test Medic RP</h1>
+    <div id="candidateInfo" class="info"></div>
+    <div id="scoreResult" class="result"></div>
+    <button onclick="window.location.href='index.html'">🔄 Làm lại bài test</button>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("quizResult"));
+    const totalQuestions = 25; // Tổng số câu hỏi
+
+    if (!data) {
+      document.getElementById("candidateInfo").innerHTML = "<p>❌ Không có dữ liệu. Vui lòng làm lại bài test.</p>";
+    } else {
+      document.getElementById("candidateInfo").innerHTML = `
+        <p><b>👤 IC Name:</b> ${data.icName}</p>
+        <p><b>🌐 OOC Name:</b> ${data.oocName}</p>
+        <p><b>🎂 Tuổi:</b> ${data.age}</p>
+        <p><b>⚧ Giới tính:</b> ${data.gender}</p>
+        <p><b>💬 Discord:</b> ${data.discord}</p>
+        <p><b>📖 Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
+        <p><b>✅ Câu đúng:</b> ${data.correctCount}/${totalQuestions}</p>
+        <p><b>⭐ Tổng điểm:</b> ${data.score}</p>
+      `;
+
+      const passScore = 25; // Điểm qua
+      const resultBox = document.getElementById("scoreResult");
+      if (data.score >= passScore) {
+        resultBox.className = "result pass";
+        resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${data.score} điểm.`;
+      } else {
+        resultBox.className = "result fail";
+        resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${data.score} điểm.`;
+      }
+    }
+  </script>
+</body>
+</html>
