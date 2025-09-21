@@ -73,20 +73,31 @@
       cursor: pointer;
     }
     .options input { margin-right: 8px; }
-    .result {
-      margin-top: 20px;
-      font-size: 1.3em;
-      font-weight: bold;
-      background: linear-gradient(90deg, #00f5ff, #ff00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+
+    /* Popup cảnh báo */
+    #popup {
+      display:none; 
+      position:fixed; 
+      top:0; left:0; 
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.7); 
+      justify-content:center; 
+      align-items:center;
+      z-index:1000;
     }
-    #fireworks {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 1000;
+    #popup .content {
+      background: linear-gradient(135deg, #ff00ff, #00f5ff);
+      padding: 25px;
+      border-radius: 20px;
+      color: #fff;
+      text-align:center;
+      box-shadow:0 0 20px #00f5ff;
+      width: 300px;
+    }
+    #popup button {
+      margin-top:15px;
+      background:#fff;
+      color:#000;
     }
   </style>
 </head>
@@ -112,175 +123,146 @@
 
     <!-- Quiz -->
     <form id="quizForm" style="display:none"></form>
-    <button id="submitBtn" style="display:none" onclick="submitQuiz()">Nộp bài</button>
-    <div class="result" id="result"></div>
+    <button id="submitBtn" style="display:none" onclick="submitQuiz(event)">Nộp bài</button>
   </div>
 
-  <canvas id="fireworks"></canvas>
-  <audio id="fireworksSound" src="https://files.catbox.moe/jy7694.mp3"></audio>
+  <!-- Popup cảnh báo -->
+  <div id="popup">
+    <div class="content">
+      <h3>⚠️ Thông báo</h3>
+      <p>Vui lòng không để trống bất kỳ thông tin nào!</p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
 
-  <script>
-    /* ====== Câu hỏi trắc nghiệm (25 câu, 1 điểm mỗi câu) ====== */
-    const questions = [
-      { q: "FearRP nghĩa là gì trong server RP?", 
-        options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
-      { q: "NLR (New Life Rule) là gì?", 
-        options: ["Sau khi chết quên toàn bộ tình huống trước đó", "Nhớ lại mọi thứ sau khi chết", "Được hồi sinh và tiếp tục đánh nhau"], a: 0 },
-      { q: "RDM là hành vi nào?", options: ["Giết người không lý do", "Giết trong tự vệ", "Giết theo kịch bản"], a: 0 },
-      { q: "VDM là gì?", options: ["Dùng xe cán người không RP", "Đua xe hợp pháp", "Đỗ xe sai chỗ"], a: 0 },
-      { q: "Meta Gaming (MG) nghĩa là gì?", options: ["Dùng OOC info vào IC", "Dùng IC info vào OOC", "Nói chuyện trong Discord"], a: 0 },
-      { q: "Power Gaming (PG) là gì?", options: ["Làm điều phi logic, ép người khác không có lựa chọn", "Đóng vai hợp lý", "RP đúng luật"], a: 0 },
-      { q: "Bug Abuse là gì?", options: ["Lợi dụng bug game để có lợi", "Báo lỗi cho admin", "Không dùng bug"], a: 0 },
-      { q: "Combat Logging là gì?", options: ["Thoát game khi đang combat RP", "RP combat hợp lý", "AFK trong game"], a: 0 },
-      { q: "Mix IC/OOC là gì?", options: ["Dùng OOC trong IC hoặc ngược lại", "IC tách biệt OOC", "Không dùng voice chat"], a: 0 },
-      { q: "Troll RP là gì?", options: ["Gây rối, phá RP người khác", "Giúp đỡ newbie", "RP nghiêm túc"], a: 0 },
-      { q: "Cop Baiting là gì?", options: ["Cố tình chọc cảnh sát để bị bắt", "RP phạm tội hợp lý", "Tuân thủ luật IC"], a: 0 },
-      { q: "Fail RP là gì?", options: ["Diễn không hợp logic, sai luật RP", "RP đúng", "Tuân thủ kịch bản"], a: 0 },
-      { q: "IC là gì?", options: ["In Character - hành động trong vai", "Out of Character", "In Combat"], a: 0 },
-      { q: "OOC là gì?", options: ["Out of Character - ngoài vai", "In Character", "Off Combat"], a: 0 },
-      { q: "Medic có được mang vũ khí không?", options: ["Không", "Súng ngắn", "Tất cả"], a: 0 },
-      { q: "Khi gặp tai nạn giao thông, việc đầu tiên Medic cần làm là gì?", options: ["Đảm bảo an toàn hiện trường", "Bắt thủ phạm", "Bỏ qua"], a: 0 },
-      { q: "Medic có được vượt đèn đỏ không?", options: ["Có khi làm nhiệm vụ khẩn", "Không bao giờ", "Chỉ khi có police hộ tống"], a: 0 },
-      { q: "Trách nhiệm của Medic khi revive là gì?", options: ["Hỗ trợ bệnh nhân RP hồi tỉnh", "Bỏ mặc", "Lấy tiền rồi bỏ đi"], a: 0 },
-      { q: "Khi bệnh nhân tử vong RP, Medic phải làm gì?", options: ["Tuân thủ NLR", "Revive ngay", "Gọi admin"], a: 0 },
-      { q: "Khi gặp vụ phạm pháp, Medic phải?", options: ["Chỉ hỗ trợ y tế, không can thiệp", "Bắt tội phạm", "RP bắn trả"], a: 0 },
-      { q: "Giao tiếp khi cứu chữa bệnh nhân cần?", options: ["Lịch sự, chuyên nghiệp", "Chọc ghẹo", "Bỏ qua"], a: 0 },
-      { q: "Khi nhiều người bị thương, Medic ưu tiên?", options: ["Người bị nặng nhất", "Người quen", "Ai trả tiền trước"], a: 0 },
-      { q: "Medic có được tham gia Crime RP không?", options: ["Không", "Có khi bí mật", "Luôn được"], a: 0 },
-      { q: "Medic rời ca trực mà không báo cáo là?", options: ["Sai quy định", "Được phép", "Không quan trọng"], a: 0 },
-      { q: "Medic dùng xe cứu thương cho mục đích cá nhân được không?", options: ["Không được phép", "Được khi cấp trên cho", "Tùy ý"], a: 0 }
-    ];
+<script>
+/* ====== Câu hỏi trắc nghiệm (25 câu) ====== */
+const questions = [
+  { q: "FearRP nghĩa là gì trong server RP?", options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
+  { q: "NLR (New Life Rule) là gì?", options: ["Sau khi chết quên toàn bộ tình huống trước đó", "Nhớ lại mọi thứ sau khi chết", "Được hồi sinh và tiếp tục đánh nhau"], a: 0 },
+  { q: "RDM là hành vi nào?", options: ["Giết người không lý do", "Giết trong tự vệ", "Giết theo kịch bản"], a: 0 },
+  { q: "VDM là gì?", options: ["Dùng xe cán người không RP", "Đua xe hợp pháp", "Đỗ xe sai chỗ"], a: 0 },
+  { q: "Meta Gaming (MG) nghĩa là gì?", options: ["Dùng OOC info vào IC", "Dùng IC info vào OOC", "Nói chuyện trong Discord"], a: 0 },
+  { q: "Power Gaming (PG) là gì?", options: ["Làm điều phi logic, ép người khác không có lựa chọn", "Đóng vai hợp lý", "RP đúng luật"], a: 0 },
+  { q: "Bug Abuse là gì?", options: ["Lợi dụng bug game để có lợi", "Báo lỗi cho admin", "Không dùng bug"], a: 0 },
+  { q: "Combat Logging là gì?", options: ["Thoát game khi đang combat RP", "RP combat hợp lý", "AFK trong game"], a: 0 },
+  { q: "Mix IC/OOC là gì?", options: ["Dùng OOC trong IC hoặc ngược lại", "IC tách biệt OOC", "Không dùng voice chat"], a: 0 },
+  { q: "Troll RP là gì?", options: ["Gây rối, phá RP người khác", "Giúp đỡ newbie", "RP nghiêm túc"], a: 0 },
+  { q: "Cop Baiting là gì?", options: ["Cố tình chọc cảnh sát để bị bắt", "RP phạm tội hợp lý", "Tuân thủ luật IC"], a: 0 },
+  { q: "Fail RP là gì?", options: ["Diễn không hợp logic, sai luật RP", "RP đúng", "Tuân thủ kịch bản"], a: 0 },
+  { q: "IC là gì?", options: ["In Character - hành động trong vai", "Out of Character", "In Combat"], a: 0 },
+  { q: "OOC là gì?", options: ["Out of Character - ngoài vai", "In Character", "Off Combat"], a: 0 },
+  { q: "Medic có được mang vũ khí không?", options: ["Không", "Súng ngắn", "Tất cả"], a: 0 },
+  { q: "Khi gặp tai nạn giao thông, việc đầu tiên Medic cần làm là gì?", options: ["Đảm bảo an toàn hiện trường", "Bắt thủ phạm", "Bỏ qua"], a: 0 },
+  { q: "Medic có được vượt đèn đỏ không?", options: ["Có khi làm nhiệm vụ khẩn", "Không bao giờ", "Chỉ khi có police hộ tống"], a: 0 },
+  { q: "Trách nhiệm của Medic khi revive là gì?", options: ["Hỗ trợ bệnh nhân RP hồi tỉnh", "Bỏ mặc", "Lấy tiền rồi bỏ đi"], a: 0 },
+  { q: "Khi bệnh nhân tử vong RP, Medic phải làm gì?", options: ["Tuân thủ NLR", "Revive ngay", "Gọi admin"], a: 0 },
+  { q: "Khi gặp vụ phạm pháp, Medic phải?", options: ["Chỉ hỗ trợ y tế, không can thiệp", "Bắt tội phạm", "RP bắn trả"], a: 0 },
+  { q: "Giao tiếp khi cứu chữa bệnh nhân cần?", options: ["Lịch sự, chuyên nghiệp", "Chọc ghẹo", "Bỏ qua"], a: 0 },
+  { q: "Khi nhiều người bị thương, Medic ưu tiên?", options: ["Người bị nặng nhất", "Người quen", "Ai trả tiền trước"], a: 0 },
+  { q: "Medic có được tham gia Crime RP không?", options: ["Không", "Có khi bí mật", "Luôn được"], a: 0 },
+  { q: "Medic rời ca trực mà không báo cáo là?", options: ["Sai quy định", "Được phép", "Không quan trọng"], a: 0 },
+  { q: "Medic dùng xe cứu thương cho mục đích cá nhân được không?", options: ["Không được phép", "Được khi cấp trên cho", "Tùy ý"], a: 0 }
+];
 
-    /* ====== Câu hỏi tình huống (5 câu, 1 điểm mỗi câu để dễ newbie) ====== */
-    const scenarios = [
-      { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?", keywords:["nguy kịch","ưu tiên","gọi hỗ trợ"], max:1 },
-      { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?", keywords:["nhắc nhở","báo admin","giữ RP"], max:1 },
-      { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?", keywords:["báo cấp trên","nhắc nhở"], max:1 },
-      { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?", keywords:["fearrp","hợp tác","không chống"], max:1 },
-      { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?", keywords:["báo admin","không cứu","báo cấp trên"], max:1 }
-    ];
+/* ====== Câu hỏi tình huống (5 câu) ====== */
+const scenarios = [
+  { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?", keywords:["nguy kịch","ưu tiên","gọi hỗ trợ"], max:1 },
+  { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?", keywords:["nhắc nhở","báo admin","giữ rp"], max:1 },
+  { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?", keywords:["báo cấp trên","nhắc nhở"], max:1 },
+  { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?", keywords:["fearrp","hợp tác","không chống"], max:1 },
+  { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?", keywords:["báo admin","không cứu","báo cấp trên"], max:1 }
+];
 
- /* ===== Render Quiz ===== */
-  function startQuiz() {
-    document.getElementById("infoForm").style.display = "none";
-    const quizForm = document.getElementById("quizForm");
-    quizForm.style.display = "block";
-    document.getElementById("submitBtn").style.display = "inline-block";
+/* ===== Render Quiz ===== */
+function startQuiz() {
+  const icName = document.getElementById("icName").value.trim();
+  const oocName = document.getElementById("oocName").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value.trim();
+  const discord = document.getElementById("discord").value.trim();
 
-    // Render trắc nghiệm
-    questions.forEach((q, i) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
-      const opts = document.createElement("div");
-      opts.className = "options";
-
-      // Tạo mảng shuffle options
-      const shuffled = q.options.map((opt, idx) => ({ opt, idx }));
-      shuffled.sort(() => Math.random() - 0.5); // random
-
-      shuffled.forEach((item) => {
-        // Đánh dấu đáp án đúng ở dataset
-        const isCorrect = item.idx === q.a ? 1 : 0;
-        opts.innerHTML += `
-          <label>
-            <input type="radio" name="q${i}" data-correct="${isCorrect}">
-            ${item.opt}
-          </label>`;
-      });
-
-      div.appendChild(opts);
-      quizForm.appendChild(div);
-    });
-
-    // Render tình huống
-    scenarios.forEach((s, i) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `<p><b>${questions.length+i+1}. ${s.q}</b></p>
-                       <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
-      quizForm.appendChild(div);
-    });
+  if (!icName || !oocName || !age || !gender || !discord) {
+    document.getElementById("popup").style.display = "flex";
+    return;
   }
 
-  /* ===== Nộp bài ===== */
-  function submitQuiz() {
-    let score = 0;
-    let correctCount = 0; // Đếm số câu trắc nghiệm đúng
+  document.querySelectorAll("#infoForm input, #infoForm select, #infoForm textarea, #infoForm button")
+    .forEach(el => el.disabled = true);
+  document.getElementById("infoForm").style.opacity = "0.6";
 
-    // Check trắc nghiệm
-    questions.forEach((q, i) => {
-      const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      if (selected && selected.dataset.correct === "1") {
-        score++;
-        correctCount++;
-      }
+  const quizForm = document.getElementById("quizForm");
+  quizForm.style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
+
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
+    const opts = document.createElement("div");
+    opts.className = "options";
+
+    const shuffled = q.options.map((opt, idx) => ({ opt, idx }));
+    shuffled.sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((item) => {
+      const isCorrect = item.idx === q.a ? 1 : 0;
+      opts.innerHTML += `
+        <label>
+          <input type="radio" name="q${i}" data-correct="${isCorrect}">
+          ${item.opt}
+        </label>`;
     });
 
-    // Check tình huống
-    scenarios.forEach((s, i) => {
-      const ans = document.querySelector(`textarea[name="s${i}"]`).value.toLowerCase();
-      let matched = s.keywords.some(k => ans.includes(k));
-      if (matched) score += s.max;
-    });
+    div.appendChild(opts);
+    quizForm.appendChild(div);
+  });
 
-    // Lấy thông tin ứng viên
-    const info = {
-      icName: document.getElementById("icName").value,
-      oocName: document.getElementById("oocName").value,
-      age: document.getElementById("age").value,
-      gender: document.getElementById("gender").value,
-      discord: document.getElementById("discord").value,
-      exp: document.getElementById("exp").value
-    };
+  scenarios.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${questions.length+i+1}. ${s.q}</b></p>
+                     <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
+    quizForm.appendChild(div);
+  });
+}
 
-    // Hiện kết quả
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerHTML = `
-      <p>📝 Ứng viên: <b>${info.icName}</b> (OOC: ${info.oocName})</p>
-      <p>👤 Tuổi: ${info.age} | Giới tính: ${info.gender} | Discord: ${info.discord}</p>
-      <p>📚 Kinh nghiệm: ${info.exp}</p>
-      <hr>
-      <p>✅ Trắc nghiệm đúng: <b>${correctCount}/25</b></p>
-      <p>⭐ Tổng điểm: <b>${score}/30</b></p>
-    `;
+/* ===== Nộp bài ===== */
+function submitQuiz(e) {
+  e.preventDefault();
 
-    if (score === 30) startFireworks();
-  }
+  let score = 0, correctCount = 0;
 
-    /* ===== Hiệu ứng pháo hoa ===== */
-    const canvas = document.getElementById("fireworks");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let fireworks = [];
-
-    class Firework {
-      constructor(x, y, color) {
-        this.x = x; this.y = y; this.color = color;
-        this.radius = Math.random()*2+1;
-        this.angle = Math.random()*2*Math.PI;
-        this.speed = Math.random()*4+2;
-        this.life = 100;
-      }
-      update(){ this.x+=Math.cos(this.angle)*this.speed; this.y+=Math.sin(this.angle)*this.speed; this.life--; }
-      draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,2*Math.PI); ctx.fillStyle=this.color; ctx.fill(); }
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if (selected && selected.dataset.correct === "1") {
+      score++; correctCount++;
     }
+  });
 
-    function startFireworks() {
-      document.getElementById("fireworksSound").play();
-      fireworks = [];
-      for(let i=0;i<200;i++){
-        fireworks.push(new Firework(canvas.width/2, canvas.height/2, `hsl(${Math.random()*360},100%,60%)`));
-      }
-      animate();
-    }
-    function animate() {
-      ctx.fillStyle="rgba(0,0,0,0.2)"; ctx.fillRect(0,0,canvas.width,canvas.height);
-      fireworks.forEach((fw,i)=>{ fw.update(); fw.draw(); if(fw.life<=0) fireworks.splice(i,1); });
-      if(fireworks.length>0) requestAnimationFrame(animate);
-    }
-    window.onresize=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-  </script>
+  scenarios.forEach((s, i) => {
+    const ans = document.querySelector(`textarea[name="s${i}"]`).value.toLowerCase();
+    if (s.keywords.some(k => ans.includes(k))) score += s.max;
+  });
+
+  const info = {
+    icName: document.getElementById("icName").value,
+    oocName: document.getElementById("oocName").value,
+    age: document.getElementById("age").value,
+    gender: document.getElementById("gender").value,
+    discord: document.getElementById("discord").value,
+    exp: document.getElementById("exp").value,
+    correctCount, score
+  };
+
+  localStorage.setItem("quizResult", JSON.stringify(info));
+  window.location.href = "result.html";
+}
+
+/* ===== Popup close ===== */
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+</script>
 </body>
-</html>
+    </html>
