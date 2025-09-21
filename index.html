@@ -1,351 +1,268 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Kết Quả Bài Test Medic RP</title>
-<style>
-  body {
-    margin: 0;
-    font-family: "Poppins", sans-serif;
-    background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-  }
-  canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 0;
-  }
-  .container {
-    width: 90%;
-    max-width: 800px;
-    padding: 30px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 20px;
-    box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-  h1 {
-    font-size: 2.2em;
-    background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: glow 3s infinite alternate;
-  }
-  @keyframes glow {
-    from { text-shadow: 0 0 10px #00f5ff; }
-    to   { text-shadow: 0 0 30px #ff00ff; }
-  }
-  .info {
-    text-align: left;
-    margin: 20px 0;
-    padding: 20px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 15px;
-    font-size: 1.1em;
-    line-height: 1.6em;
-  }
-  .info p { margin: 6px 0; }
-  .result {
-    font-size: 1.5em;
-    margin: 20px 0;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: bold;
-  }
-  .pass {
-    background: rgba(0,255,150,0.2);
-    color: #00ff9d;
-    box-shadow: 0 0 20px #00ff9d;
-  }
-  .fail {
-    background: rgba(255,0,80,0.2);
-    color: #ff4b2b;
-    box-shadow: 0 0 20px #ff4b2b;
-  }
-  button {
-    margin-top: 20px;
-    padding: 12px 35px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 50px;
-    background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
-  }
+  <meta charset="UTF-8">
+  <title>Bài Test Tuyển Medic RP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 900px;
+      padding: 30px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 3s infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00f5ff; }
+      to { text-shadow: 0 0 30px #ff00ff; }
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 35px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
+    }
+    .question {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      text-align: left;
+    }
+    .options label {
+      display: block;
+      margin: 8px 0;
+      padding: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .options input { margin-right: 8px; }
 
-  /* Popup điểm tuyệt đối */
-  .popup {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 3em;
-    font-weight: bold;
-    background: linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
-    white-space: nowrap;
-    z-index: 1000;
-    opacity: 0;
-    animation: slideIn 6s linear forwards;
-  }
-  @keyframes slideIn {
-    0% { transform: translateX(-100%) scale(0.8); opacity: 0; }
-    20% { opacity: 1; }
-    50% { transform: translateX(0) scale(1.1); opacity: 1; }
-    80% { opacity: 1; }
-    100% { transform: translateX(100%) scale(0.8); opacity: 0; }
-  }
-</style>
+    /* Popup cảnh báo */
+    #popup {
+      display:none; 
+      position:fixed; 
+      top:0; left:0; 
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.7); 
+      justify-content:center; 
+      align-items:center;
+      z-index:1000;
+    }
+    #popup .content {
+      background: linear-gradient(135deg, #ff00ff, #00f5ff);
+      padding: 25px;
+      border-radius: 20px;
+      color: #fff;
+      text-align:center;
+      box-shadow:0 0 20px #00f5ff;
+      width: 300px;
+    }
+    #popup button {
+      margin-top:15px;
+      background:#fff;
+      color:#000;
+    }
+  </style>
 </head>
 <body>
-<canvas id="fireworksCanvas"></canvas>
+  <div class="container">
+    <h1>📋 Đơn Tuyển Medic RP</h1>
 
-<!-- ÂM THANH -->
-<audio id="launchSound" src="bbang-47623.mp3"></audio>
-<audio id="whistleSound" src="whistlingrocket_2-106971.mp3"></audio>
-<audio id="wooshSound" src="woosh-104586.mp3"></audio>
-<audio id="explosionBig" src="big-boom-14752.mp3"></audio>
-<audio id="explosionCluster" src="firework-cluster-90480.mp3"></audio>
-<audio id="awardMusic" src="award.mp3"></audio>
+    <!-- Form thông tin ứng viên -->
+    <div id="infoForm">
+      <input type="text" id="icName" placeholder="Tên IC (Trong game)" required>
+      <input type="text" id="oocName" placeholder="Tên OOC (Ngoài đời)" required>
+      <input type="number" id="age" placeholder="Tuổi" required>
+      <select id="gender">
+        <option value="">-- Giới tính --</option>
+        <option>Nam</option>
+        <option>Nữ</option>
+        <option>Khác</option>
+      </select>
+      <input type="text" id="discord" placeholder="Discord ID (Ví dụ: Ten#1234)" required>
+      <textarea id="exp" rows="3" placeholder="Kinh nghiệm RP (thời gian, tổ chức đã tham gia...)"></textarea>
+      <button onclick="startQuiz()">Bắt đầu Test</button>
+    </div>
 
-<div class="container">
-  <h1>⚕️ KẾT QUẢ PHỎNG VẤN MEDIC ⚕️</h1>
-  <div id="candidateInfo" class="info"></div>
-  <div id="scoreResult" class="result"></div>
-  <button onclick="window.location.href='index.html'">🔄 Làm lại bài test</button>
-</div>
+    <!-- Quiz -->
+    <form id="quizForm" style="display:none"></form>
+    <button id="submitBtn" style="display:none" onclick="submitQuiz(event)">Nộp bài</button>
+  </div>
+
+  <!-- Popup cảnh báo -->
+  <div id="popup">
+    <div class="content">
+      <h3>⚠️ Thông báo</h3>
+      <p>Vui lòng không để trống bất kỳ thông tin nào!</p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
 
 <script>
-// ====== Hiển thị kết quả ======
-const data = JSON.parse(localStorage.getItem("quizResult"));
-const totalQuestions = 25; 
-const scenarioCount = 5; 
-const scenarioPoint = 2; 
+/* ====== Câu hỏi trắc nghiệm (25 câu) ====== */
+const questions = [
+  { q: "FearRP nghĩa là gì trong server RP?", options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
+  { q: "NLR (New Life Rule) là gì?", options: ["Sau khi chết quên toàn bộ tình huống trước đó", "Nhớ lại mọi thứ sau khi chết", "Được hồi sinh và tiếp tục đánh nhau"], a: 0 },
+  { q: "RDM là hành vi nào?", options: ["Giết người không lý do", "Giết trong tự vệ", "Giết theo kịch bản"], a: 0 },
+  { q: "VDM là gì?", options: ["Dùng xe cán người không RP", "Đua xe hợp pháp", "Đỗ xe sai chỗ"], a: 0 },
+  { q: "Meta Gaming (MG) nghĩa là gì?", options: ["Dùng OOC info vào IC", "Dùng IC info vào OOC", "Nói chuyện trong Discord"], a: 0 },
+  { q: "Power Gaming (PG) là gì?", options: ["Làm điều phi logic, ép người khác không có lựa chọn", "Đóng vai hợp lý", "RP đúng luật"], a: 0 },
+  { q: "Bug Abuse là gì?", options: ["Lợi dụng bug game để có lợi", "Báo lỗi cho admin", "Không dùng bug"], a: 0 },
+  { q: "Combat Logging là gì?", options: ["Thoát game khi đang combat RP", "RP combat hợp lý", "AFK trong game"], a: 0 },
+  { q: "Mix IC/OOC là gì?", options: ["Dùng OOC trong IC hoặc ngược lại", "IC tách biệt OOC", "Không dùng voice chat"], a: 0 },
+  { q: "Troll RP là gì?", options: ["Gây rối, phá RP người khác", "Giúp đỡ newbie", "RP nghiêm túc"], a: 0 },
+  { q: "Cop Baiting là gì?", options: ["Cố tình chọc cảnh sát để bị bắt", "RP phạm tội hợp lý", "Tuân thủ luật IC"], a: 0 },
+  { q: "Fail RP là gì?", options: ["Diễn không hợp logic, sai luật RP", "RP đúng", "Tuân thủ kịch bản"], a: 0 },
+  { q: "IC là gì?", options: ["In Character - hành động trong vai", "Out of Character", "In Combat"], a: 0 },
+  { q: "OOC là gì?", options: ["Out of Character - ngoài vai", "In Character", "Off Combat"], a: 0 },
+  { q: "Medic có được mang vũ khí không?", options: ["Không", "Súng ngắn", "Tất cả"], a: 0 },
+  { q: "Khi gặp tai nạn giao thông, việc đầu tiên Medic cần làm là gì?", options: ["Đảm bảo an toàn hiện trường", "Bắt thủ phạm", "Bỏ qua"], a: 0 },
+  { q: "Medic có được vượt đèn đỏ không?", options: ["Có khi làm nhiệm vụ khẩn", "Không bao giờ", "Chỉ khi có police hộ tống"], a: 0 },
+  { q: "Trách nhiệm của Medic khi revive là gì?", options: ["Hỗ trợ bệnh nhân RP hồi tỉnh", "Bỏ mặc", "Lấy tiền rồi bỏ đi"], a: 0 },
+  { q: "Khi bệnh nhân tử vong RP, Medic phải làm gì?", options: ["Tuân thủ NLR", "Revive ngay", "Gọi admin"], a: 0 },
+  { q: "Khi gặp vụ phạm pháp, Medic phải?", options: ["Chỉ hỗ trợ y tế, không can thiệp", "Bắt tội phạm", "RP bắn trả"], a: 0 },
+  { q: "Giao tiếp khi cứu chữa bệnh nhân cần?", options: ["Lịch sự, chuyên nghiệp", "Chọc ghẹo", "Bỏ qua"], a: 0 },
+  { q: "Khi nhiều người bị thương, Medic ưu tiên?", options: ["Người bị nặng nhất", "Người quen", "Ai trả tiền trước"], a: 0 },
+  { q: "Medic có được tham gia Crime RP không?", options: ["Không", "Có khi bí mật", "Luôn được"], a: 0 },
+  { q: "Medic rời ca trực mà không báo cáo là?", options: ["Sai quy định", "Được phép", "Không quan trọng"], a: 0 },
+  { q: "Medic dùng xe cứu thương cho mục đích cá nhân được không?", options: ["Không được phép", "Được khi cấp trên cho", "Tùy ý"], a: 0 }
+];
 
-if (!data) {
-  document.getElementById("candidateInfo").innerHTML = "<p>❌ Không có dữ liệu. Vui lòng làm lại bài test.</p>";
-} else {
-  const scenarioScore = scenarioCount * scenarioPoint;
-  const totalScore = data.score + scenarioScore;
+/* ====== Câu hỏi tình huống (5 câu) ====== */
+const scenarios = [
+  { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?", keywords:["nguy kịch","ưu tiên","gọi hỗ trợ"], max:1 },
+  { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?", keywords:["nhắc nhở","báo admin","giữ rp"], max:1 },
+  { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?", keywords:["báo cấp trên","nhắc nhở"], max:1 },
+  { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?", keywords:["fearrp","hợp tác","không chống"], max:1 },
+  { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?", keywords:["báo admin","không cứu","báo cấp trên"], max:1 }
+];
 
-  document.getElementById("candidateInfo").innerHTML = `
-    <p>👤 <b>IC Name:</b> ${data.icName}</p>
-    <p>🌐 <b>OOC Name:</b> ${data.oocName}</p>
-    <p>🎂 <b>Tuổi:</b> ${data.age}</p>
-    <p>⚧ <b>Giới tính:</b> ${data.gender}</p>
-    <p>💬 <b>Discord:</b> ${data.discord}</p>
-    <p>📖 <b>Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
-    <p>✅ <b>Câu trắc nghiệm đúng:</b> ${data.correctCount}/${totalQuestions} (${questionScore} điểm)</p>
-    <p>🎭 <b>Tình huống đúng:</b> ${data.scenarioCorrect || 0}/${scenarioCount} (${scenarioScore} điểm)</p>
-    <p>⭐ <b>Tổng điểm:</b> ${totalScore}/${maxScore}</p>
-  `;
+/* ===== Render Quiz ===== */
+function startQuiz() {
+  const icName = document.getElementById("icName").value.trim();
+  const oocName = document.getElementById("oocName").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value.trim();
+  const discord = document.getElementById("discord").value.trim();
 
-  const passScore = 35;
-  const resultBox = document.getElementById("scoreResult");
-
-  if (totalScore >= passScore) {
-    resultBox.className = "result pass";
-    resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${totalScore}/${maxScore} điểm.`;
-    startFireworks();
-
-    if (totalScore === maxScore) {
-      showPerfectPopup();
-      const awardMusic = document.getElementById("awardMusic");
-      awardMusic.play().catch(()=>{});
-      setTimeout(()=>{
-        awardMusic.pause();
-        awardMusic.currentTime = 0;
-      },15000);
-    }
-  } else {
-    resultBox.className = "result fail";
-    resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${totalScore}/${maxScore} điểm.`;
-  }
-}
-
-// ================= FIREWORKS =================
-const canvas = document.getElementById("fireworksCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-
-let fireworks = [];
-let particles = [];
-
-// ================== ÂM THANH ==================
-function playSound(id) {
-  const s = document.getElementById(id);
-  if (!s) return;
-  const clone = s.cloneNode();
-  clone.volume = 0.8;
-  clone.play().catch(()=>{});
-}
-
-window.addEventListener("load", ()=>{
-  ["launchSound","whistleSound","wooshSound","explosionBig","explosionCluster","awardMusic"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.load();
-  });
-});
-
-// ================== FIREWORK ==================
-class Firework {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = canvas.height;
-    this.targetY = Math.random() * (canvas.height/2);
-    this.speed = 7 + Math.random()*3;
-    this.trail = [];
-    this.exploded = false;
-
-    playSound("launchSound");
-    playSound("whistleSound");
-    playSound("wooshSound");
+  if (!icName || !oocName || !age || !gender || !discord) {
+    document.getElementById("popup").style.display = "flex";
+    return;
   }
 
-  update() {
-    if (!this.exploded) {
-      this.trail.push({x:this.x,y:this.y});
-      if(this.trail.length>10) this.trail.shift();
-      this.y -= this.speed;
+  document.querySelectorAll("#infoForm input, #infoForm select, #infoForm textarea, #infoForm button")
+    .forEach(el => el.disabled = true);
+  document.getElementById("infoForm").style.opacity = "0.6";
 
-      if (this.y <= this.targetY) {
-        this.explode();
-        this.exploded = true;
-      }
-    }
-  }
+  const quizForm = document.getElementById("quizForm");
+  quizForm.style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
 
-  draw() {
-    ctx.beginPath();
-    ctx.moveTo(this.x,this.y);
-    for(let i=this.trail.length-1;i>=0;i--){
-      const p=this.trail[i];
-      ctx.lineTo(p.x,p.y);
-    }
-    ctx.strokeStyle="rgba(255,255,200,0.8)";
-    ctx.lineWidth=2;
-    ctx.stroke();
-  }
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
+    const opts = document.createElement("div");
+    opts.className = "options";
 
-  explode() {
-    const count = 24+Math.random()*25;
-    for(let i=0;i<count;i++){
-      setTimeout(()=>{
-        particles.push(new Particle(this.x,this.y));
-      },i*20);
-    }
-    if(Math.random()>0.5) playSound("explosionBig");
-    else playSound("explosionCluster");
-  }
-}
+    const shuffled = q.options.map((opt, idx) => ({ opt, idx }));
+    shuffled.sort(() => Math.random() - 0.5);
 
-// ================== PARTICLE ==================
-class Particle {
-  constructor(x,y){
-    this.x=x; this.y=y;
-    this.angle=Math.random()*Math.PI*2;
-    this.speed=Math.random()*6+2;
-    this.life=1;
-    this.decay=Math.random()*0.02+0.015;
-    this.size=Math.random()*2+1;
+    shuffled.forEach((item) => {
+      const isCorrect = item.idx === q.a ? 1 : 0;
+      opts.innerHTML += `
+        <label>
+          <input type="radio" name="q${i}" data-correct="${isCorrect}">
+          ${item.opt}
+        </label>`;
+    });
 
-    const colors=[
-      ["#ffcc00","#ff3300"],
-      ["#66ff66","#33ccff"],
-      ["#ff99ff","#cc00ff"],
-      ["#ffffff","#ffff99"]
-    ];
-    this.gradientColors=colors[Math.floor(Math.random()*colors.length)];
-  }
-
-  update(){
-    this.x+=Math.cos(this.angle)*this.speed;
-    this.y+=Math.sin(this.angle)*this.speed+0.2;
-    this.speed*=0.97;
-    this.life-=this.decay;
-  }
-
-  draw(){
-    if(this.life<=0) return;
-    ctx.globalAlpha=this.life;
-    const gradient=ctx.createLinearGradient(
-      this.x,this.y,
-      this.x-Math.cos(this.angle)*this.size*8,
-      this.y-Math.sin(this.angle)*this.size*8
-    );
-    gradient.addColorStop(0,"#fff");
-    gradient.addColorStop(0.3,this.gradientColors[0]);
-    gradient.addColorStop(1,this.gradientColors[1]);
-
-    ctx.strokeStyle=gradient;
-    ctx.lineWidth=this.size;
-    ctx.beginPath();
-    ctx.moveTo(this.x,this.y);
-    ctx.lineTo(
-      this.x-Math.cos(this.angle)*this.size*8,
-      this.y-Math.sin(this.angle)*this.size*8
-    );
-    ctx.stroke();
-    ctx.globalAlpha=1;
-  }
-}
-
-// ================== LOOP ==================
-function animate(){
-  ctx.fillStyle="rgba(0,0,0,0.2)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  fireworks.forEach((fw,i)=>{
-    fw.update(); fw.draw();
-    if(fw.exploded) fireworks.splice(i,1);
+    div.appendChild(opts);
+    quizForm.appendChild(div);
   });
 
-  particles.forEach((p,i)=>{
-    p.update(); p.draw();
-    if(p.life<=0) particles.splice(i,1);
+  scenarios.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${questions.length+i+1}. ${s.q}</b></p>
+                     <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
+    quizForm.appendChild(div);
+  });
+}
+
+/* ===== Nộp bài ===== */
+function submitQuiz(e) {
+  e.preventDefault();
+
+  let score = 0, correctCount = 0;
+
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if (selected && selected.dataset.correct === "1") {
+      score++; correctCount++;
+    }
   });
 
-  requestAnimationFrame(animate);
-}
-animate();
+  scenarios.forEach((s, i) => {
+    const ans = document.querySelector(`textarea[name="s${i}"]`).value.toLowerCase();
+    if (s.keywords.some(k => ans.includes(k))) score += s.max;
+  });
 
-function startFireworks(){
-  let count = 0;
-  const interval = setInterval(()=>{
-    fireworks.push(new Firework());
-    count++;
-    if (count > 8) clearInterval(interval); 
-  },1500);
+  const info = {
+    icName: document.getElementById("icName").value,
+    oocName: document.getElementById("oocName").value,
+    age: document.getElementById("age").value,
+    gender: document.getElementById("gender").value,
+    discord: document.getElementById("discord").value,
+    exp: document.getElementById("exp").value,
+    correctCount, score
+  };
+
+  localStorage.setItem("quizResult", JSON.stringify(info));
+  window.location.href = "result.html";
 }
 
-// ====== Popup điểm tuyệt đối ======
-function showPerfectPopup() {
-  const popup = document.createElement("div");
-  popup.className = "popup";
-  popup.textContent = "🌟 ĐẠT ĐIỂM TUYỆT ĐỐI 35/35 🌟";
-  document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 7000);
+/* ===== Popup close ===== */
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
 }
 </script>
 </body>
-</html>
+  </html>
