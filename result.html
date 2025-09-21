@@ -1,210 +1,256 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Kết Quả Phỏng Vấn Medic</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-    .container {
-      position: relative;
-      z-index: 10;
-      width: 90%;
-      max-width: 800px;
-      padding: 30px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 20px;
-      box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2em;
-      background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: glow 3s infinite alternate;
-    }
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #00f5ff; }
-      to   { text-shadow: 0 0 30px #ff00ff; }
-    }
-    .info {
-      text-align: left;
-      margin: 20px 0;
-      padding: 20px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 15px;
-    }
-    .result {
-      font-size: 1.4em;
-      margin: 20px 0;
-      padding: 15px;
-      border-radius: 12px;
-      font-weight: bold;
-    }
-    .pass {
-      background: rgba(0,255,150,0.2);
-      color: #00ff9d;
-      box-shadow: 0 0 20px #00ff9d;
-    }
-    .fail {
-      background: rgba(255,0,80,0.2);
-      color: #ff4b2b;
-      box-shadow: 0 0 20px #ff4b2b;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px 35px;
-      font-size: 1.1em;
-      border: none;
-      border-radius: 50px;
-      background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
-    }
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Kết Quả Bài Test Medic RP</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+  .container {
+    width: 90%;
+    max-width: 800px;
+    padding: 30px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  h1 {
+    font-size: 2em;
+    background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: glow 3s infinite alternate;
+  }
+  @keyframes glow {
+    from { text-shadow: 0 0 10px #00f5ff; }
+    to   { text-shadow: 0 0 30px #ff00ff; }
+  }
+  .info {
+    text-align: left;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+  }
+  .result {
+    font-size: 1.4em;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+  }
+  .pass {
+    background: rgba(0,255,150,0.2);
+    color: #00ff9d;
+    box-shadow: 0 0 20px #00ff9d;
+  }
+  .fail {
+    background: rgba(255,0,80,0.2);
+    color: #ff4b2b;
+    box-shadow: 0 0 20px #ff4b2b;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px 35px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
+  }
+</style>
 </head>
 <body>
-  <canvas id="fireworks"></canvas>
-  <div class="container">
-    <h1>📊 Kết Quả Phỏng Vấn Medic </h1>
-    <div id="candidateInfo" class="info"></div>
-    <div id="scoreResult" class="result"></div>
-    <button onclick="window.location.href='index.html'">🔄 Làm lại bài test</button>
-  </div>
 
-  <!-- Âm thanh pháo hoa -->
-  <audio id="fireworkSound" src="https://files.catbox.moe/jy7694.mp3" preload="auto"></audio>
+<canvas id="fireworksCanvas"></canvas>
+<audio id="fireworkSound" src="https://files.catbox.moe/jy7694.mp3"></audio>
 
-  <script>
-    const data = JSON.parse(localStorage.getItem("quizResult"));
-    const totalQuestions = 25; // số câu trắc nghiệm
+<div class="container">
+  <h1>📊 Kết Quả Phỏng Vấn Medic </h1>
+  <div id="candidateInfo" class="info"></div>
+  <div id="scoreResult" class="result"></div>
+  <button onclick="window.location.href='index.html'">🔄 Làm lại bài test</button>
+</div>
 
-    const infoBox = document.getElementById("candidateInfo");
-    const resultBox = document.getElementById("scoreResult");
-    const fireworkCanvas = document.getElementById("fireworks");
-    const ctx = fireworkCanvas.getContext("2d");
-    fireworkCanvas.width = window.innerWidth;
-    fireworkCanvas.height = window.innerHeight;
+<script>
+// ====== Dữ liệu điểm
+const data = JSON.parse(localStorage.getItem("quizResult"));
+const totalQuestions = 25; 
+const scenarioCount = 5; 
+const scenarioPoint = 2; 
 
-    if (!data) {
-      infoBox.innerHTML = "<p>❌ Không có dữ liệu. Vui lòng làm lại bài test.</p>";
-    } else {
-      // Tổng điểm = điểm trắc nghiệm + điểm tình huống
-      const totalScore = (data.score || 0) + (data.scenarioScore || 0);
+if (!data) {
+  document.getElementById("candidateInfo").innerHTML = "<p>❌ Không có dữ liệu. Vui lòng làm lại bài test.</p>";
+} else {
+  const scenarioScore = scenarioCount * scenarioPoint;
+  const totalScore = data.score + scenarioScore;
 
-      infoBox.innerHTML = `
-        <p><b>👤 IC Name:</b> ${data.icName}</p>
-        <p><b>🌐 OOC Name:</b> ${data.oocName}</p>
-        <p><b>🎂 Tuổi:</b> ${data.age}</p>
-        <p><b>⚧ Giới tính:</b> ${data.gender}</p>
-        <p><b>💬 Discord:</b> ${data.discord}</p>
-        <p><b>📖 Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
-        <p><b>✅ Câu trắc nghiệm đúng:</b> ${data.correctCount}/${totalQuestions}</p>
-        <p><b>📝 Điểm tình huống:</b> ${data.scenarioScore || 0}</p>
-        <p><b>⭐ Tổng điểm:</b> ${totalScore}</p>
-      `;
+  document.getElementById("candidateInfo").innerHTML = `
+    <p><b>👤 IC Name:</b> ${data.icName}</p>
+    <p><b>🌐 OOC Name:</b> ${data.oocName}</p>
+    <p><b>🎂 Tuổi:</b> ${data.age}</p>
+    <p><b>⚧ Giới tính:</b> ${data.gender}</p>
+    <p><b>💬 Discord:</b> ${data.discord}</p>
+    <p><b>📖 Kinh nghiệm:</b> ${data.exp || "Không có"}</p>
+    <p><b>✅ Câu trắc nghiệm đúng:</b> ${data.correctCount}/${totalQuestions}</p>
+    <p><b>⭐ Tổng điểm:</b> ${totalScore}</p>
+  `;
 
-      const passScore = 25; 
-      if (totalScore >= passScore) {
-        resultBox.className = "result pass";
-        resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${totalScore} điểm.`;
-        startFireworks();
-        document.getElementById("fireworkSound").play();
-      } else {
-        resultBox.className = "result fail";
-        resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${totalScore} điểm.`;
-      }
+  const passScore = 35;
+  const resultBox = document.getElementById("scoreResult");
+  if (totalScore >= passScore) {
+    resultBox.className = "result pass";
+    resultBox.textContent = `🎉 Chúc mừng ${data.icName}! Bạn đã ĐẬU với ${totalScore} điểm.`;
+    startFireworks();
+  } else {
+    resultBox.className = "result fail";
+    resultBox.textContent = `😢 Rất tiếc ${data.icName}! Bạn chỉ đạt ${totalScore} điểm.`;
+  }
+}
+
+// ====== Canvas pháo hoa
+const canvas = document.getElementById('fireworksCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+class Particle {
+  constructor(x, y, color, speed, angle, size, gravity) {
+    this.x = x; this.y = y;
+    this.color = color;
+    this.speed = speed;
+    this.angle = angle;
+    this.alpha = 1;
+    this.size = size;
+    this.gravity = gravity;
+    this.friction = 0.95;
+  }
+  update() {
+    this.speed *= this.friction;
+    this.x += Math.cos(this.angle) * this.speed;
+    this.y += Math.sin(this.angle) * this.speed + this.gravity;
+    this.alpha -= 0.015;
+  }
+  draw() {
+    ctx.globalAlpha = this.alpha;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+class FloatingText {
+  constructor(text, x, y, color, size) {
+    this.text = text;
+    this.x = x;
+    this.y = y;
+    this.alpha = 1;
+    this.color = color;
+    this.size = size;
+  }
+  update() { this.y -= 1; this.alpha -= 0.01; }
+  draw() {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.font = `${this.size}px Arial`;
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.globalAlpha = 1;
+  }
+}
+
+let particles = [];
+let texts = [];
+
+function createFirework(type){
+  const x = Math.random() * canvas.width;
+  const y = Math.random() * canvas.height/2;
+  const colors = ['#ff0040','#00ff99','#00f5ff','#ffcc00','#ff00ff','#ff6600','#00ffff'];
+  const sound = document.getElementById('fireworkSound');
+  sound.currentTime = 0;
+  sound.play();
+
+  for(let i=0;i<100;i++){
+    let angle, radius = Math.random()*50+50;
+    if(type==="heart"){
+      angle = i * 0.1;
+      let px = 16*Math.pow(Math.sin(angle),3);
+      let py = 13*Math.cos(angle)-5*Math.cos(2*angle)-2*Math.cos(3*angle)-Math.cos(4*angle);
+      particles.push(new Particle(x+px*2,y-py*2,colors[Math.floor(Math.random()*colors.length)],Math.random()*3+2,Math.random()*Math.PI*2,2,0.1));
+    } else if(type==="star"){
+      angle = i * (Math.PI/5);
+      let px = Math.cos(angle) * 30;
+      let py = Math.sin(angle) * 30;
+      particles.push(new Particle(x+px,y+py,colors[Math.floor(Math.random()*colors.length)],Math.random()*3+2,Math.random()*Math.PI*2,2,0.1));
+    } else { 
+      const angle = Math.random()*Math.PI*2;
+      const speed = Math.random()*6+2;
+      particles.push(new Particle(x,y,colors[Math.floor(Math.random()*colors.length)],speed,angle,2,0.2));
     }
+  }
 
-    // ===================== PHÁO HOA =====================
-    class Firework {
-      constructor(x, y, color) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.radius = 2;
-        this.particles = [];
-        for (let i = 0; i < 80; i++) {
-          const angle = Math.random() * 2 * Math.PI;
-          const speed = Math.random() * 5 + 2;
-          this.particles.push({
-            x: this.x,
-            y: this.y,
-            dx: Math.cos(angle) * speed,
-            dy: Math.sin(angle) * speed,
-            life: 100
-          });
-        }
-      }
-      draw() {
-        this.particles.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, this.radius, 0, Math.PI * 2);
-          ctx.fillStyle = this.color;
-          ctx.fill();
-        });
-      }
-      update() {
-        this.particles.forEach(p => {
-          p.x += p.dx;
-          p.y += p.dy;
-          p.dy += 0.05; 
-          p.life -= 1;
-        });
-        this.particles = this.particles.filter(p => p.life > 0);
-      }
+  // Text bay lên
+  for(let i=0;i<3;i++){
+    texts.push(new FloatingText("🎉 Chúc Mừng bạn đã đậu", x + (Math.random()*50-25), y + (Math.random()*50-25), colors[Math.floor(Math.random()*colors.length)], 30+Math.random()*20));
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  particles.forEach((p,i)=>{
+    p.update(); p.draw();
+    if(p.alpha<=0) particles.splice(i,1);
+  });
+
+  texts.forEach((t,i)=>{
+    t.update(); t.draw();
+    if(t.alpha<=0) texts.splice(i,1);
+  });
+}
+
+function startFireworks(){
+  const types = ["circle","heart","star","circle","heart","star","circle"];
+  let count=0;
+  function autoFire(){
+    if(count<types.length){
+      createFirework(types[count]);
+      count++;
+      setTimeout(autoFire,700);
     }
+  }
+  autoFire();
+}
 
-    let fireworks = [];
-    function startFireworks() {
-      animate(); // fix lỗi không bắn
-      setInterval(() => {
-        const x = Math.random() * fireworkCanvas.width;
-        const y = Math.random() * fireworkCanvas.height / 2;
-        const colors = ["#ff4b2b", "#00ff9d", "#00f5ff", "#ff00ff", "#ffff00"];
-        fireworks.push(new Firework(x, y, colors[Math.floor(Math.random()*colors.length)]));
-      }, 700);
-    }
-
-    function animate() {
-      ctx.fillStyle = "rgba(0,0,0,0.2)";
-      ctx.fillRect(0, 0, fireworkCanvas.width, fireworkCanvas.height);
-      fireworks.forEach(f => {
-        f.update();
-        f.draw();
-      });
-      fireworks = fireworks.filter(f => f.particles.length > 0);
-      requestAnimationFrame(animate);
-    }
-
-    window.addEventListener("resize", () => {
-      fireworkCanvas.width = window.innerWidth;
-      fireworkCanvas.height = window.innerHeight;
-    });
-  </script>
+animate();
+</script>
 </body>
-  </html>
+</html>
