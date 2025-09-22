@@ -2,177 +2,207 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Bài Test Tuyển Medic RP</title>
+  <title>Đơn Ứng Tuyển Medic</title>
   <style>
     body {
-      margin: 0;
       font-family: "Poppins", sans-serif;
-      background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
-      color: #fff;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
     }
     .container {
-      width: 90%;
-      max-width: 900px;
-      padding: 30px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 20px;
-      box-shadow: 0 0 25px #00f5ff, 0 0 50px #ff00ff;
-      text-align: center;
+      width: 85%;
+      max-width: 950px;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     h1 {
-      font-size: 2em;
-      background: linear-gradient(90deg, #00f5ff, #ff00ff, #00ff9d);
+      text-align: center;
+      color: #444;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: glow 3s infinite alternate;
     }
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #00f5ff; }
-      to { text-shadow: 0 0 30px #ff00ff; }
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+      color: #333;
     }
     input, select, textarea {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      font-size: 1em;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 5px rgba(102,126,234,0.4);
     }
     button {
-      margin-top: 20px;
-      padding: 12px 35px;
-      font-size: 1.1em;
-      border: none;
-      border-radius: 50px;
-      background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff9d);
+      background: linear-gradient(90deg, #667eea, #764ba2);
       color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      transition: 0.3s;
     }
     button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px #fff, 0 0 40px #ff00ff;
+      transform: scale(1.02);
+      box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
     }
     .question {
-      margin: 15px 0;
-      padding: 15px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 15px;
-      text-align: left;
+      margin: 18px 0;
+      padding: 18px;
+      border-radius: 12px;
+      background: #f9f9fb;
+      border-left: 5px solid #667eea;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    }
+    .question p {
+      font-weight: 600;
+      margin-bottom: 8px;
     }
     .options label {
       display: block;
-      margin: 8px 0;
-      padding: 8px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 10px;
+      margin: 6px 0;
       cursor: pointer;
     }
-    .options input { margin-right: 8px; }
-
-    /* Popup cảnh báo */
     #popup {
-      display:none; 
-      position:fixed; 
-      top:0; left:0; 
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.7); 
-      justify-content:center; 
-      align-items:center;
-      z-index:1000;
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
     }
-    #popup .content {
-      background: linear-gradient(135deg, #ff00ff, #00f5ff);
-      padding: 25px;
-      border-radius: 20px;
-      color: #fff;
-      text-align:center;
-      box-shadow:0 0 20px #00f5ff;
-      width: 300px;
+    #popup .box {
+      background: #fff;
+      padding: 25px 35px;
+      border-radius: 14px;
+      text-align: center;
+      max-width: 420px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: scaleIn 0.4s ease;
     }
-    #popup button {
-      margin-top:15px;
-      background:#fff;
-      color:#000;
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📋 Đơn Tuyển Medic RP</h1>
-
-    <!-- Form thông tin ứng viên -->
-    <div id="infoForm">
-      <input type="text" id="icName" placeholder="Tên IC (Trong game)" required>
-      <input type="text" id="oocName" placeholder="Tên OOC (Ngoài đời)" required>
-      <input type="number" id="age" placeholder="Tuổi" required>
-      <select id="gender">
-        <option value="">-- Giới tính --</option>
+    <h1>ĐƠN ỨNG TUYỂN MEDIC</h1>
+    <form id="infoForm" onsubmit="event.preventDefault(); startQuiz();">
+      <label>IC Name:</label>
+      <input type="text" id="icName" required>
+      
+      <label>OOC Name:</label>
+      <input type="text" id="oocName" required>
+      
+      <label>Tuổi:</label>
+      <input type="number" id="age" required>
+      
+      <label>Giới tính:</label>
+      <select id="gender" required>
+        <option value="">-- Chọn giới tính --</option>
         <option>Nam</option>
         <option>Nữ</option>
         <option>Khác</option>
       </select>
-      <input type="text" id="discord" placeholder="Discord ID (Ví dụ: Ten#1234)" required>
-      <textarea id="exp" rows="3" placeholder="Kinh nghiệm RP (thời gian, tổ chức đã tham gia...)"></textarea>
-      <button onclick="startQuiz()">Bắt đầu Test</button>
-    </div>
+      
+      <label>Discord:</label>
+      <input type="text" id="discord" required>
+      
+      <label>Kinh nghiệm RP (nếu có):</label>
+      <textarea id="exp" rows="3"></textarea>
+      
+      <button type="submit">🚑 Bắt đầu Bài Test</button>
+    </form>
 
-    <!-- Quiz -->
-    <form id="quizForm" style="display:none"></form>
-    <button id="submitBtn" style="display:none" onclick="submitQuiz(event)">Nộp bài</button>
+    <form id="quizForm" style="display:none;" onsubmit="submitQuiz(event)">
+    </form>
+
+    <button id="submitBtn" style="display:none;" onclick="submitQuiz(event)">✅ Nộp Bài</button>
   </div>
 
-  <!-- Popup cảnh báo -->
+  <!-- Popup -->
   <div id="popup">
-    <div class="content">
-      <h3>⚠️ Thông báo</h3>
-      <p>Vui lòng không để trống bất kỳ thông tin nào!</p>
+    <div class="box">
+      <p>❌ Vui lòng điền đầy đủ thông tin trước khi bắt đầu!</p>
       <button onclick="closePopup()">Đóng</button>
     </div>
   </div>
 
 <script>
-/* ====== Câu hỏi trắc nghiệm (25 câu) ====== */
+/* ====== 25 câu trắc nghiệm ====== */
 const questions = [
   { q: "FearRP nghĩa là gì trong server RP?", options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
-  { q: "NLR (New Life Rule) là gì?", options: ["Sau khi chết quên toàn bộ tình huống trước đó", "Nhớ lại mọi thứ sau khi chết", "Được hồi sinh và tiếp tục đánh nhau"], a: 0 },
-  { q: "RDM là hành vi nào?", options: ["Giết người không lý do", "Giết trong tự vệ", "Giết theo kịch bản"], a: 0 },
-  { q: "VDM là gì?", options: ["Dùng xe cán người không RP", "Đua xe hợp pháp", "Đỗ xe sai chỗ"], a: 0 },
-  { q: "Meta Gaming (MG) nghĩa là gì?", options: ["Dùng OOC info vào IC", "Dùng IC info vào OOC", "Nói chuyện trong Discord"], a: 0 },
-  { q: "Power Gaming (PG) là gì?", options: ["Làm điều phi logic, ép người khác không có lựa chọn", "Đóng vai hợp lý", "RP đúng luật"], a: 0 },
-  { q: "Bug Abuse là gì?", options: ["Lợi dụng bug game để có lợi", "Báo lỗi cho admin", "Không dùng bug"], a: 0 },
-  { q: "Combat Logging là gì?", options: ["Thoát game khi đang combat RP", "RP combat hợp lý", "AFK trong game"], a: 0 },
-  { q: "Mix IC/OOC là gì?", options: ["Dùng OOC trong IC hoặc ngược lại", "IC tách biệt OOC", "Không dùng voice chat"], a: 0 },
-  { q: "Troll RP là gì?", options: ["Gây rối, phá RP người khác", "Giúp đỡ newbie", "RP nghiêm túc"], a: 0 },
-  { q: "Cop Baiting là gì?", options: ["Cố tình chọc cảnh sát để bị bắt", "RP phạm tội hợp lý", "Tuân thủ luật IC"], a: 0 },
-  { q: "Fail RP là gì?", options: ["Diễn không hợp logic, sai luật RP", "RP đúng", "Tuân thủ kịch bản"], a: 0 },
-  { q: "IC là gì?", options: ["In Character - hành động trong vai", "Out of Character", "In Combat"], a: 0 },
-  { q: "OOC là gì?", options: ["Out of Character - ngoài vai", "In Character", "Off Combat"], a: 0 },
-  { q: "Medic có được mang vũ khí không?", options: ["Không", "Súng ngắn", "Tất cả"], a: 0 },
-  { q: "Khi gặp tai nạn giao thông, việc đầu tiên Medic cần làm là gì?", options: ["Đảm bảo an toàn hiện trường", "Bắt thủ phạm", "Bỏ qua"], a: 0 },
-  { q: "Medic có được vượt đèn đỏ không?", options: ["Có khi làm nhiệm vụ khẩn", "Không bao giờ", "Chỉ khi có police hộ tống"], a: 0 },
-  { q: "Trách nhiệm của Medic khi revive là gì?", options: ["Hỗ trợ bệnh nhân RP hồi tỉnh", "Bỏ mặc", "Lấy tiền rồi bỏ đi"], a: 0 },
-  { q: "Khi bệnh nhân tử vong RP, Medic phải làm gì?", options: ["Tuân thủ NLR", "Revive ngay", "Gọi admin"], a: 0 },
-  { q: "Khi gặp vụ phạm pháp, Medic phải?", options: ["Chỉ hỗ trợ y tế, không can thiệp", "Bắt tội phạm", "RP bắn trả"], a: 0 },
-  { q: "Giao tiếp khi cứu chữa bệnh nhân cần?", options: ["Lịch sự, chuyên nghiệp", "Chọc ghẹo", "Bỏ qua"], a: 0 },
-  { q: "Khi nhiều người bị thương, Medic ưu tiên?", options: ["Người bị nặng nhất", "Người quen", "Ai trả tiền trước"], a: 0 },
-  { q: "Medic có được tham gia Crime RP không?", options: ["Không", "Có khi bí mật", "Luôn được"], a: 0 },
-  { q: "Medic rời ca trực mà không báo cáo là?", options: ["Sai quy định", "Được phép", "Không quan trọng"], a: 0 },
+  { q: "PowerGaming là gì?", options: ["Ép người khác làm theo ý mình trong RP", "Chơi game có sức mạnh", "Spam lệnh"], a: 0 },
+  { q: "MetaGaming là gì?", options: ["Dùng thông tin OOC vào IC", "Chơi game siêu cấp", "Xem live rồi stream snipe"], a: 0 },
+  { q: "CombatLog nghĩa là gì?", options: ["Thoát game khi đang trong tình huống RP", "Đánh nhau xong ghi log", "Spam combat"], a: 0 },
+  { q: "EMS có được phép dùng vũ khí không?", options: ["Không bao giờ", "Được khi có cấp trên cho", "Được khi tự vệ"], a: 0 },
+  { q: "Khi bệnh nhân chết IC, EMS phải làm gì?", options: ["Đưa về bệnh viện và xử lý theo quy trình", "Bỏ mặc", "Cho sống lại ngay lập tức"], a: 0 },
+  { q: "EMS được phép dùng xe cứu thương cho việc gì?", options: ["Chỉ dùng trong nhiệm vụ cấp cứu", "Đi chơi", "Đua xe"], a: 0 },
+  { q: "Khi nào bạn được phép bật còi ưu tiên?", options: ["Khi đi cứu người hoặc chở bệnh nhân", "Đi uống cà phê", "Đưa bạn đi nhờ"], a: 0 },
+  { q: "Bạn thấy người chơi ngã xe bất tỉnh, bạn nên làm gì?", options: ["Tiếp cận và cấp cứu theo quy trình", "Bỏ qua", "Đánh thêm cho chết hẳn"], a: 0 },
+  { q: "EMS có được tham gia hoạt động phạm pháp không?", options: ["Không bao giờ", "Có nếu ngoài giờ", "Có khi không ai biết"], a: 0 },
+  { q: "Bạn được gọi đi cứu người, nhưng hết xăng. Bạn làm gì?", options: ["Báo cáo xin hỗ trợ", "Bỏ nhiệm vụ", "Đi bộ cho nhanh"], a: 0 },
+  { q: "EMS có được phép tham gia băng đảng không?", options: ["Không", "Có", "Tuỳ thích"], a: 0 },
+  { q: "Khi cấp cứu, EMS cần ưu tiên điều gì?", options: ["An toàn của bản thân và đồng đội", "Nhanh nhất có thể, bất chấp", "Bắt bệnh nhân trả tiền trước"], a: 0 },
+  { q: "EMS có thể từ chối cứu người trong trường hợp nào?", options: ["Không có", "Nếu không thích", "Nếu người đó hay troll"], a: 0 },
+  { q: "EMS có được chở nhiều người trên xe cứu thương không?", options: ["Chỉ bệnh nhân và nhân viên y tế", "Ai cũng được", "Chở bạn bè đi chơi"], a: 0 },
+  { q: "Khi gặp tai nạn có nhiều người bị thương, bạn làm gì?", options: ["Ưu tiên người nặng nhất", "Cứu ai cũng được", "Bỏ qua"], a: 0 },
+  { q: "Nếu bệnh nhân disconnect giữa lúc cấp cứu, bạn làm gì?", options: ["Báo cáo và tiếp tục công việc khác", "Bắt buộc chờ", "Đuổi theo"], a: 0 },
+  { q: "Khi đi trực, EMS bắt buộc phải mặc gì?", options: ["Đồng phục EMS", "Tự do", "Quần áo băng đảng"], a: 0 },
+  { q: "EMS có được phép dùng lệnh revive bừa bãi không?", options: ["Không", "Có", "Chỉ khi thích"], a: 0 },
+  { q: "Khi có người troll gọi cứu thương, bạn làm gì?", options: ["Xử lý RP, báo cáo nếu cần", "Không bao giờ cứu nữa", "Đánh lại"], a: 0 },
+  { q: "EMS có thể tham gia combat cùng PD không?", options: ["Không", "Có", "Tùy tình huống"], a: 0 },
+  { q: "Nếu thấy người đồng nghiệp sai luật RP, bạn nên làm gì?", options: ["Báo cáo cấp trên", "Im lặng", "Hùa theo"], a: 0 },
+  { q: "EMS có thể tham gia đua xe hợp pháp không?", options: ["Ngoài giờ trực", "Trong giờ trực", "Đang đi cấp cứu cũng được"], a: 0 },
+  { q: "Khi đưa bệnh nhân về viện, bạn cần làm gì?", options: ["RP đầy đủ quy trình", "Chỉ bấm revive", "Bỏ mặc"], a: 0 },
   { q: "Medic dùng xe cứu thương cho mục đích cá nhân được không?", options: ["Không được phép", "Được khi cấp trên cho", "Tùy ý"], a: 0 }
 ];
 
-/* ====== Câu hỏi tình huống (5 câu) ====== */
+/* ====== 5 câu tình huống ====== */
 const scenarios = [
-  { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?", keywords:["nguy kịch","ưu tiên","gọi hỗ trợ"], max:1 },
-  { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?", keywords:["nhắc nhở","báo admin","giữ rp"], max:1 },
-  { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?", keywords:["báo cấp trên","nhắc nhở"], max:1 },
-  { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?", keywords:["fearrp","hợp tác","không chống"], max:1 },
-  { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?", keywords:["báo admin","không cứu","báo cấp trên"], max:1 }
+  { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?" },
+  { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?" },
+  { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?" },
+  { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?" },
+  { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?" }
 ];
+
+let submitted = false;
 
 /* ===== Render Quiz ===== */
 function startQuiz() {
@@ -201,10 +231,8 @@ function startQuiz() {
     div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
     const opts = document.createElement("div");
     opts.className = "options";
-
     const shuffled = q.options.map((opt, idx) => ({ opt, idx }));
     shuffled.sort(() => Math.random() - 0.5);
-
     shuffled.forEach((item) => {
       const isCorrect = item.idx === q.a ? 1 : 0;
       opts.innerHTML += `
@@ -213,7 +241,6 @@ function startQuiz() {
           ${item.opt}
         </label>`;
     });
-
     div.appendChild(opts);
     quizForm.appendChild(div);
   });
@@ -230,9 +257,16 @@ function startQuiz() {
 /* ===== Nộp bài ===== */
 function submitQuiz(e) {
   e.preventDefault();
+  if (submitted) return;
+  submitted = true;
+
+  const btn = document.getElementById("submitBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "Đang gửi...";
+  }
 
   let score = 0, correctCount = 0;
-
   questions.forEach((q, i) => {
     const selected = document.querySelector(`input[name="q${i}"]:checked`);
     if (selected && selected.dataset.correct === "1") {
@@ -240,9 +274,8 @@ function submitQuiz(e) {
     }
   });
 
-  scenarios.forEach((s, i) => {
-    const ans = document.querySelector(`textarea[name="s${i}"]`).value.toLowerCase();
-    if (s.keywords.some(k => ans.includes(k))) score += s.max;
+  const scenarioAnswers = scenarios.map((s, i) => {
+    return { question: s.q, answer: document.querySelector(`textarea[name="s${i}"]`).value };
   });
 
   const info = {
@@ -252,11 +285,50 @@ function submitQuiz(e) {
     gender: document.getElementById("gender").value,
     discord: document.getElementById("discord").value,
     exp: document.getElementById("exp").value,
-    correctCount, score
+    correctCount, score,
+    scenarios: scenarioAnswers
   };
 
   localStorage.setItem("quizResult", JSON.stringify(info));
-  window.location.href = "result.html";
+
+  const webhookURL = "https://discord.com/api/webhooks/1419662336272236654/MMr1GaG1N5ULoxT3xcZXY-SIaknPG4IDLFHbmILT9WeCA-OirDoEPZ-KxJNeC2kBCxSN"; // 🔴 thay bằng webhook kênh admin
+  const embeds = scenarioAnswers.map((s, idx) => ({
+    title: `Tình huống ${idx+1}`,
+    description: `**Câu hỏi:** ${s.question}\n**Trả lời:** ${s.answer || "_(trống)_"}`,
+    color: 3447003
+  }));
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: "<@&1414936349571813376>  <@&1414936763700351036>📢 Có bài phỏng vấn mới cần chấm điểm!",
+      username: "Medic log",
+      embeds: [
+        {
+          title: `📋 Bài Test của ${info.icName} (${info.oocName})`,
+          description: `Điểm trắc nghiệm: **${score}/${questions.length}**`,
+          color: 15844367,
+          fields: [
+            { name: "Discord", value: info.discord, inline: true },
+            { name: "Tuổi", value: info.age, inline: true },
+            { name: "Giới tính", value: info.gender, inline: true },
+            { name: "Kinh nghiệm", value: info.exp || "Không có" }
+          ]
+        },
+        ...embeds
+      ]
+    })
+  }).catch(err => console.error("Webhook error:", err));
+
+  const container = document.querySelector(".container");
+  container.innerHTML = `
+    <h2>✅ Bài test đã được gửi!</h2>
+    <p>Thông tin và phần trả lời đã được chuyển về <b>Ban Quản Trị MEDIC</b> để chấm điểm.<br>
+    Vui lòng chờ kết quả ứng tuyển trong thời gian sớm nhất.</p>
+  `;
+
+  setTimeout(() => { window.location.href = "result.html"; }, 5000);
 }
 
 /* ===== Popup close ===== */
