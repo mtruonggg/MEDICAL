@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đơn Ứng Tuyển Medic</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0; padding: 0; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .container {
+      width: 85%; max-width: 950px; background: #fff;
+      padding: 30px 40px; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    h1 { text-align: center; margin-bottom: 20px; background: linear-gradient(90deg,#667eea,#764ba2);
+         -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    label { font-weight: 600; margin-top: 12px; display: block; color: #333; }
+    input, select, textarea {
+      width: 100%; padding: 10px; margin-top: 6px;
+      border: 1px solid #ddd; border-radius: 8px; font-size: 15px; transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #667eea; outline: none; box-shadow: 0 0 5px rgba(102,126,234,0.4);
+    }
+    button {
+      background: linear-gradient(90deg,#667eea,#764ba2); color: white;
+      padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
+      margin-top: 20px; font-size: 16px; font-weight: 600; width: 100%; transition: 0.3s;
+    }
+    button:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+    button:disabled { background:#aaa; cursor:not-allowed; box-shadow:none; transform:none; }
+    .question { margin: 18px 0; padding: 18px; border-radius: 12px; background:#f9f9fb;
+                border-left: 5px solid #667eea; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+    .question p { font-weight: 600; margin-bottom: 8px; }
+    .options label { display: block; margin: 6px 0; cursor: pointer; }
+    #popup {
+      display: none; position: fixed; top:0;left:0;right:0;bottom:0;
+      background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 999;
+    }
+    #popup .box {
+      background: #fff; padding: 25px 35px; border-radius: 14px; text-align: center;
+      max-width: 420px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); animation: scaleIn 0.4s ease;
+    }
+    @keyframes scaleIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ĐƠN ỨNG TUYỂN MEDIC</h1>
+
+    <!-- Form thông tin ứng viên -->
+    <form id="infoForm" onsubmit="event.preventDefault(); startQuiz();">
+      <label>IC Name:</label>
+      <input type="text" id="icName" required>
+      <label>OOC Name:</label>
+      <input type="text" id="oocName" required>
+      <label>Tuổi:</label>
+      <input type="number" id="age" required>
+      <label>Giới tính:</label>
+      <select id="gender" required>
+        <option value="">-- Chọn giới tính --</option>
+        <option>Nam</option><option>Nữ</option><option>Khác</option>
+      </select>
+      <label>Discord:</label>
+      <input type="text" id="discord" required>
+      <label>Kinh nghiệm RP (nếu có):</label>
+      <textarea id="exp" rows="3"></textarea>
+      <button type="submit">🚑 Bắt đầu Bài Test</button>
+    </form>
+
+    <!-- Bài quiz -->
+    <form id="quizForm" style="display:none;"></form>
+    <button id="submitBtn" style="display:none;" onclick="submitQuiz(event)">✅ Nộp Bài</button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup">
+    <div class="box">
+      <p>❌ Vui lòng điền đầy đủ thông tin trước khi bắt đầu!</p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+
+<script>
+/* ================= CÂU HỎI ================= */
+const questions = [
+  { q: "Trong RP, khi gặp người bất tỉnh, bước đầu tiên Medic cần làm là gì?",
+    options: ["Đưa vào xe ngay", "Kiểm tra phản ứng và hô hấp", "Gọi cảnh sát tới", "Bỏ qua"], a: 1 },
+  { q: "Thuốc Adrenaline được dùng khi nào?",
+    options: ["Ngưng tim, ngưng thở", "Đau đầu", "Trầy xước", "Đói"], a: 0 },
+  { q: "Xe cứu thương khi chở bệnh nhân cần?",
+    options: ["Bật còi ưu tiên, di chuyển an toàn", "Chạy thật nhanh", "Không bật còi", "Dừng khi thấy người quen"], a: 0 },
+  { q: "Khi nhiều người bị thương, ưu tiên?",
+    options: ["Người quen", "Nặng nhất", "Ai gọi trước", "Bỏ qua"], a: 1 },
+  { q: "Khi sơ cứu chảy máu nặng, Medic làm gì?",
+    options: ["Băng ép cầm máu", "Đưa nước uống", "Chờ cảnh sát", "Cho ăn"], a: 0 },
+  { q: "CPR là viết tắt của?",
+    options: ["Hồi sức tim phổi", "Tiêm thuốc", "Khâu vết thương", "Gãy xương"], a: 0 },
+  { q: "Trong RP, Medic được mang vũ khí không?",
+    options: ["Không", "Có", "Chỉ khi cần", "Tuỳ thích"], a: 0 },
+  { q: "Ống nghe được dùng để?",
+    options: ["Nghe tim phổi", "Đo nhiệt độ", "Tiêm thuốc", "Khâu vết thương"], a: 0 },
+  { q: "Trường hợp nào cần gọi thêm hỗ trợ?",
+    options: ["Tai nạn nhiều người", "Người ngã nhẹ", "Đau bụng nhẹ", "Mệt mỏi"], a: 0 },
+  { q: "Thuốc giảm đau dùng khi?",
+    options: ["Đau nhức vừa phải", "Ngưng tim", "Ngưng thở", "Chấn thương sọ"], a: 0 },
+  { q: "Khi đưa bệnh nhân lên cáng, cần?",
+    options: ["2-3 Medic phối hợp", "Một mình nâng", "Kéo lê", "Để nằm đất"], a: 0 },
+  { q: "Trong RP, gọi 115 nghĩa là?",
+    options: ["Cấp cứu khẩn cấp", "Cảnh sát", "Taxi", "Bệnh viện"], a: 0 },
+  { q: "Khi bệnh nhân ngừng thở, cần?",
+    options: ["Hồi sức tim phổi", "Đưa nước", "Chờ cảnh sát", "Tiêm giảm đau"], a: 0 },
+  { q: "Nhiệm vụ chính của Medic RP?",
+    options: ["Cứu người, hỗ trợ y tế", "Đua xe", "Buôn bán", "Truy bắt"], a: 0 },
+  { q: "Sơ cứu gãy xương gồm?",
+    options: ["Cố định xương", "Cho ăn uống", "Tiêm thuốc", "Đánh thức"], a: 0 },
+  { q: "Khi gặp cháy nổ, Medic làm gì?",
+    options: ["Đảm bảo an toàn rồi cứu", "Xông vào ngay", "Đứng ngoài", "Bỏ chạy"], a: 0 },
+  { q: "Bệnh nhân ngất do mất nước xử lý?",
+    options: ["Bù dịch", "Cho thuốc mê", "Đưa đi tù", "Cho ăn cơm"], a: 0 },
+  { q: "Khi bị thương do dao đâm, cần?",
+    options: ["Không rút dao, cầm máu", "Rút dao ngay", "Đưa nước uống", "Chạy"], a: 0 },
+  { q: "Xe cứu thương đậu sai chỗ sẽ?",
+    options: ["Ảnh hưởng RP, bị phạt", "Không sao", "Thêm điểm", "Được khen"], a: 0 },
+  { q: "Truyền dịch được dùng khi?",
+    options: ["Mất nước, mất máu nhẹ", "Ngưng tim", "Đau đầu", "Đói"], a: 0 },
+  { q: "Medic có được từ chối cứu không?",
+    options: ["Không", "Có", "Tuỳ thích", "Chỉ khi bận"], a: 0 },
+  { q: "Điều đầu tiên khi tới hiện trường?",
+    options: ["Đảm bảo an toàn", "Cứu ngay", "Chụp hình", "Đứng nhìn"], a: 0 },
+  { q: "Máy khử rung tim dùng khi?",
+    options: ["Ngưng tim", "Đau bụng", "Đau đầu", "Ngất do mệt"], a: 0 },
+  { q: "Khi bệnh nhân sốc thuốc, cần?",
+    options: ["Ngưng thuốc, xử trí cấp cứu", "Tiếp tục cho thuốc", "Chờ khỏi", "Bỏ qua"], a: 0 },
+  { q: "Trong RP, Medic phải luôn?",
+    options: ["Giữ thái độ chuyên nghiệp", "Nói tục", "Đua xe", "Làm kinh doanh"], a: 0 }
+];
+
+/* ========== 5 CÂU TÌNH HUỐNG ========== */
+const scenarios = [
+  { q: "Bạn gặp tai nạn giao thông với 5 nạn nhân, 2 người nguy kịch. Hãy mô tả cách xử lý RP." },
+  { q: "Một người bất tỉnh trong sự kiện đông người, bạn sẽ làm gì?" },
+  { q: "Trong bệnh viện xảy ra cháy nhỏ, bạn xử lý ra sao để vừa cứu người vừa an toàn?" },
+  { q: "Bạn được gọi đến cứu một người bị dao đâm còn lưỡi dao trong người, mô tả cách xử lý RP." },
+  { q: "Khi đang cấp cứu thì có nhóm người gây rối, bạn sẽ RP thế nào?" }
+];
+
+let submitted = false;
+
+/* ================= BẮT ĐẦU QUIZ ================= */
+function startQuiz() {
+  const icName = document.getElementById("icName").value.trim();
+  const oocName = document.getElementById("oocName").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value.trim();
+  const discord = document.getElementById("discord").value.trim();
+
+  if (!icName || !oocName || !age || !gender || !discord) {
+    document.getElementById("popup").style.display = "flex";
+    return;
+  }
+
+  // Disable form thông tin
+  document.querySelectorAll("#infoForm input,#infoForm select,#infoForm textarea,#infoForm button")
+    .forEach(el => el.disabled = true);
+  document.getElementById("infoForm").style.opacity = "0.6";
+
+  // Render quiz
+  const quizForm = document.getElementById("quizForm");
+  quizForm.innerHTML = "";
+  quizForm.style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
+
+  questions.forEach((q,i)=>{
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
+    const opts = document.createElement("div"); opts.className="options";
+
+    // random đáp án
+    q.options.map((opt,idx)=>({opt,idx}))
+      .sort(()=>Math.random()-0.5)
+      .forEach(item=>{
+        const isCorrect = item.idx===q.a?1:0;
+        opts.innerHTML += `
+          <label>
+            <input type="radio" name="q${i}" data-correct="${isCorrect}"> ${item.opt}
+          </label>`;
+      });
+
+    div.appendChild(opts);
+    quizForm.appendChild(div);
+  });
+
+  scenarios.forEach((s,i)=>{
+    const div=document.createElement("div");
+    div.className="question";
+    div.innerHTML=`<p><b>${questions.length+i+1}. ${s.q}</b></p>
+                   <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
+    quizForm.appendChild(div);
+  });
+}
+
+/* ================= NỘP QUIZ ================= */
+function submitQuiz(e) {
+  e.preventDefault();
+  if (submitted) return;
+  submitted = true;
+
+  const btn=document.getElementById("submitBtn");
+  btn.disabled=true; btn.innerText="Đang gửi...";
+
+  let score=0;
+  questions.forEach((q,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    if(sel && sel.dataset.correct==="1") score++;
+  });
+
+  const scenarioAnswers=scenarios.map((s,i)=>({
+    question:s.q, answer:document.querySelector(`textarea[name="s${i}"]`).value
+  }));
+
+  const info={
+    icName:document.getElementById("icName").value,
+    oocName:document.getElementById("oocName").value,
+    age:document.getElementById("age").value,
+    gender:document.getElementById("gender").value,
+    discord:document.getElementById("discord").value,
+    exp:document.getElementById("exp").value,
+    score, total:questions.length,
+    scenarios:scenarioAnswers
+  };
+
+  localStorage.setItem("quizResult",JSON.stringify(info));
+
+  // gửi Discord
+  const webhookURL="https://discord.com/api/webhooks/1419662336272236654/MMr1GaG1N5ULoxT3xcZXY-SIaknPG4IDLFHbmILT9WeCA-OirDoEPZ-KxJNeC2kBCxSN"; 
+  const embeds=scenarioAnswers.map((s,idx)=>({
+    title:`Tình huống ${idx+1}`,
+    description:`**Câu hỏi:** ${s.question}\n**Trả lời:** ${s.answer||"_(trống)_"}`
+  }));
+
+  fetch(webhookURL,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      content:"<@&1414936349571813376>  <@&1414936763700351036>📢 Có bài phỏng vấn mới cần chấm điểm!",
+      username:"Medic log",
+      embeds:[
+        {
+          title:`📋 Bài phỏng vấn của ${info.icName} (${info.oocName})`,
+          description:`Điểm trắc nghiệm: **${score}/${questions.length}**`,
+          color:15844367,
+          fields:[
+            {name:"Discord",value:info.discord,inline:true},
+            {name:"Tuổi",value:info.age,inline:true},
+            {name:"Giới tính",value:info.gender,inline:true},
+            {name:"Kinh nghiệm",value:info.exp||"Không có"}
+          ]
+        },
+        ...embeds
+      ]
+    })
+  }).catch(err=>console.error("Webhook error:",err));
+
+  document.querySelector(".container").innerHTML=`
+    <h2>✅ Bài phỏng vấn đã được gửi!</h2>
+    <p>Thông tin và phần trả lời đã được chuyển về <b>Ban Quản Trị MEDIC</b> để chấm điểm.<br>
+    Vui lòng chờ kết quả ứng tuyển.</p>`;
+}
+
+/* ================= Popup ================= */
+function closePopup(){ document.getElementById("popup").style.display="none"; }
+</script>
+</body>
+</html>
