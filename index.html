@@ -165,49 +165,89 @@
 
 <script>
 /* ====== 25 câu trắc nghiệm ====== */
-const questions = [
-  { q: "FearRP nghĩa là gì trong server RP?", options: ["Không được làm liều khi bị đe doạ mạng sống", "Không sợ ai trong RP", "Được phép chống lại dù nguy hiểm"], a: 0 },
-  { q: "PowerGaming là gì?", options: ["Ép người khác làm theo ý mình trong RP", "Chơi game có sức mạnh", "Spam lệnh"], a: 0 },
-  { q: "MetaGaming là gì?", options: ["Dùng thông tin OOC vào IC", "Chơi game siêu cấp", "Xem live rồi stream snipe"], a: 0 },
-  { q: "CombatLog nghĩa là gì?", options: ["Thoát game khi đang trong tình huống RP", "Đánh nhau xong ghi log", "Spam combat"], a: 0 },
-  { q: "EMS có được phép dùng vũ khí không?", options: ["Không bao giờ", "Được khi có cấp trên cho", "Được khi tự vệ"], a: 0 },
-  { q: "Khi bệnh nhân chết IC, EMS phải làm gì?", options: ["Đưa về bệnh viện và xử lý theo quy trình", "Bỏ mặc", "Cho sống lại ngay lập tức"], a: 0 },
-  { q: "EMS được phép dùng xe cứu thương cho việc gì?", options: ["Chỉ dùng trong nhiệm vụ cấp cứu", "Đi chơi", "Đua xe"], a: 0 },
-  { q: "Khi nào bạn được phép bật còi ưu tiên?", options: ["Khi đi cứu người hoặc chở bệnh nhân", "Đi uống cà phê", "Đưa bạn đi nhờ"], a: 0 },
-  { q: "Bạn thấy người chơi ngã xe bất tỉnh, bạn nên làm gì?", options: ["Tiếp cận và cấp cứu theo quy trình", "Bỏ qua", "Đánh thêm cho chết hẳn"], a: 0 },
-  { q: "EMS có được tham gia hoạt động phạm pháp không?", options: ["Không bao giờ", "Có nếu ngoài giờ", "Có khi không ai biết"], a: 0 },
-  { q: "Bạn được gọi đi cứu người, nhưng hết xăng. Bạn làm gì?", options: ["Báo cáo xin hỗ trợ", "Bỏ nhiệm vụ", "Đi bộ cho nhanh"], a: 0 },
-  { q: "EMS có được phép tham gia băng đảng không?", options: ["Không", "Có", "Tuỳ thích"], a: 0 },
-  { q: "Khi cấp cứu, EMS cần ưu tiên điều gì?", options: ["An toàn của bản thân và đồng đội", "Nhanh nhất có thể, bất chấp", "Bắt bệnh nhân trả tiền trước"], a: 0 },
-  { q: "EMS có thể từ chối cứu người trong trường hợp nào?", options: ["Không có", "Nếu không thích", "Nếu người đó hay troll"], a: 0 },
-  { q: "EMS có được chở nhiều người trên xe cứu thương không?", options: ["Chỉ bệnh nhân và nhân viên y tế", "Ai cũng được", "Chở bạn bè đi chơi"], a: 0 },
-  { q: "Khi gặp tai nạn có nhiều người bị thương, bạn làm gì?", options: ["Ưu tiên người nặng nhất", "Cứu ai cũng được", "Bỏ qua"], a: 0 },
-  { q: "Nếu bệnh nhân disconnect giữa lúc cấp cứu, bạn làm gì?", options: ["Báo cáo và tiếp tục công việc khác", "Bắt buộc chờ", "Đuổi theo"], a: 0 },
-  { q: "Khi đi trực, EMS bắt buộc phải mặc gì?", options: ["Đồng phục EMS", "Tự do", "Quần áo băng đảng"], a: 0 },
-  { q: "EMS có được phép dùng lệnh revive bừa bãi không?", options: ["Không", "Có", "Chỉ khi thích"], a: 0 },
-  { q: "Khi có người troll gọi cứu thương, bạn làm gì?", options: ["Xử lý RP, báo cáo nếu cần", "Không bao giờ cứu nữa", "Đánh lại"], a: 0 },
-  { q: "EMS có thể tham gia combat cùng PD không?", options: ["Không", "Có", "Tùy tình huống"], a: 0 },
-  { q: "Nếu thấy người đồng nghiệp sai luật RP, bạn nên làm gì?", options: ["Báo cáo cấp trên", "Im lặng", "Hùa theo"], a: 0 },
-  { q: "EMS có thể tham gia đua xe hợp pháp không?", options: ["Ngoài giờ trực", "Trong giờ trực", "Đang đi cấp cứu cũng được"], a: 0 },
-  { q: "Khi đưa bệnh nhân về viện, bạn cần làm gì?", options: ["RP đầy đủ quy trình", "Chỉ bấm revive", "Bỏ mặc"], a: 0 },
-  { q: "Medic dùng xe cứu thương cho mục đích cá nhân được không?", options: ["Không được phép", "Được khi cấp trên cho", "Tùy ý"], a: 0 }
-];
-
-/* ====== 5 câu tình huống ====== */
-const scenarios = [
-  { q: "Bạn gặp 2 người bị thương và 1 người nguy kịch, bạn xử lý thế nào?" },
-  { q: "Bệnh nhân không hợp tác khi cấp cứu, bạn làm gì?" },
-  { q: "Thấy đồng nghiệp Medic làm sai RP, bạn xử lý sao?" },
-  { q: "Bạn bị tội phạm chĩa súng khi đi cứu người, bạn làm gì?" },
-  { q: "Người chơi gọi cứu thương troll, bạn xử lý sao?" }
-];
 
 let submitted = false;
 
 /* ===== Render Quiz ===== */
 function startQuiz() {
   const icName = document.getElementById("icName").value.trim();
-  const oocName = document.getElementById("oocName").value.trim();
+  const oocName = document.getElementBconst questions = [
+  { q: "Trong RP, khi gặp người bất tỉnh, bước đầu tiên Medic cần làm là gì?",
+    options: ["Đưa vào xe ngay", "Kiểm tra phản ứng và hô hấp", "Gọi cảnh sát tới", "Bỏ qua"], a: 1 },
+  { q: "Thuốc Adrenaline được dùng khi nào?",
+    options: ["Ngưng tim, ngưng thở", "Đau đầu", "Trầy xước", "Đói"], a: 0 },
+  { q: "Xe cứu thương khi chở bệnh nhân cần?",
+    options: ["Bật còi ưu tiên, di chuyển an toàn", "Chạy thật nhanh", "Không bật còi", "Dừng khi thấy người quen"], a: 0 },
+  { q: "Khi nhiều người bị thương, ưu tiên?",
+    options: ["Người quen", "Nặng nhất", "Ai gọi trước", "Bỏ qua"], a: 1 },
+  { q: "Khi sơ cứu chảy máu nặng, Medic làm gì?",
+    options: ["Băng ép cầm máu", "Đưa nước uống", "Chờ cảnh sát", "Cho ăn"], a: 0 },
+  { q: "CPR là viết tắt của?",
+    options: ["Hồi sức tim phổi", "Tiêm thuốc", "Khâu vết thương", "Gãy xương"], a: 0 },
+  { q: "Trong RP, Medic được mang vũ khí không?",
+    options: ["Không", "Có", "Chỉ khi cần", "Tuỳ thích"], a: 0 },
+  { q: "Ống nghe được dùng để?",
+    options: ["Nghe tim phổi", "Đo nhiệt độ", "Tiêm thuốc", "Khâu vết thương"], a: 0 },
+  { q: "Trường hợp nào cần gọi thêm hỗ trợ?",
+    options: ["Tai nạn nhiều người", "Người ngã nhẹ", "Đau bụng nhẹ", "Mệt mỏi"], a: 0 },
+  { q: "Thuốc giảm đau dùng khi?",
+    options: ["Đau nhức vừa phải", "Ngưng tim", "Ngưng thở", "Chấn thương sọ"], a: 0 },
+  { q: "Khi đưa bệnh nhân lên cáng, cần?",
+    options: ["2-3 Medic phối hợp", "Một mình nâng", "Kéo lê", "Để nằm đất"], a: 0 },
+  { q: "Trong RP, gọi 115 nghĩa là?",
+    options: ["Cấp cứu khẩn cấp", "Cảnh sát", "Taxi", "Bệnh viện"], a: 0 },
+  { q: "Khi bệnh nhân ngừng thở, cần?",
+    options: ["Hồi sức tim phổi", "Đưa nước", "Chờ cảnh sát", "Tiêm giảm đau"], a: 0 },
+  { q: "Nhiệm vụ chính của Medic RP?",
+    options: ["Cứu người, hỗ trợ y tế", "Đua xe", "Buôn bán", "Truy bắt"], a: 0 },
+  { q: "Sơ cứu gãy xương gồm?",
+    options: ["Cố định xương", "Cho ăn uống", "Tiêm thuốc", "Đánh thức"], a: 0 },
+  { q: "Khi gặp cháy nổ, Medic làm gì?",
+    options: ["Đảm bảo an toàn rồi cứu", "Xông vào ngay", "Đứng ngoài", "Bỏ chạy"], a: 0 },
+  { q: "Bệnh nhân ngất do mất nước xử lý?",
+    options: ["Bù dịch", "Cho thuốc mê", "Đưa đi tù", "Cho ăn cơm"], a: 0 },
+  { q: "Khi bị thương do dao đâm, cần?",
+    options: ["Không rút dao, cầm máu", "Rút dao ngay", "Đưa nước uống", "Chạy"], a: 0 },
+  { q: "Xe cứu thương đậu sai chỗ sẽ?",
+    options: ["Ảnh hưởng RP, bị phạt", "Không sao", "Thêm điểm", "Được khen"], a: 0 },
+  { q: "Truyền dịch được dùng khi?",
+    options: ["Mất nước, mất máu nhẹ", "Ngưng tim", "Đau đầu", "Đói"], a: 0 },
+  { q: "Medic có được từ chối cứu không?",
+    options: ["Không", "Có", "Tuỳ thích", "Chỉ khi bận"], a: 0 },
+  { q: "Điều đầu tiên khi tới hiện trường?",
+    options: ["Đảm bảo an toàn", "Cứu ngay", "Chụp hình", "Đứng nhìn"], a: 0 },
+  { q: "Máy khử rung tim dùng khi?",
+    options: ["Ngưng tim", "Đau bụng", "Đau đầu", "Ngất do mệt"], a: 0 },
+  { q: "Khi bệnh nhân sốc thuốc, cần?",
+    options: ["Ngưng thuốc, xử trí cấp cứu", "Tiếp tục cho thuốc", "Chờ khỏi", "Bỏ qua"], a: 0 },
+  { q: "Trong RP, Medic phải luôn?",
+    options: ["Giữ thái độ chuyên nghiệp", "Nói tục", "Đua xe", "Làm kinh doanh"], a: 0 }
+];
+
+/* ========== 5 CÂU TÌNH HUỐNG ========== */
+const scenarios = [
+  { q: "Bạn gặp tai nạn giao thông với 5 nạn nhân, 2 người nguy kịch. Hãy mô tả cách xử lý RP." },
+  { q: "Một người bất tỉnh trong sự kiện đông người, bạn sẽ làm gì?" },
+  { q: "Trong bệnh viện xảy ra cháy nhỏ, bạn xử lý ra sao để vừa cứu người vừa an toàn?" },
+  { q: "Bạn được gọi đến cứu một người bị dao đâm còn lưỡi dao trong người, mô tả cách xử lý RP." },
+  { q: "Khi đang cấp cứu thì có nhóm người gây rối, bạn sẽ RP thế nào?" }
+];
+
+/* ====== Render Quiz ====== */
+function startQuiz() {
+  const quizForm = document.getElementById("quizForm");
+  quizForm.innerHTML = "";
+  quizForm.style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
+
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p><b>${i + 1}. ${q.q}</b></p>`;
+
+    const opts = document.createElement("div");
+    opts.className = "options";
+yId("oocName").value.trim();
   const age = document.getElementById("age").value.trim();
   const gender = document.getElementById("gender").value.trim();
   const discord = document.getElementById("discord").value.trim();
@@ -253,6 +293,24 @@ function startQuiz() {
     quizForm.appendChild(div);
   });
 }
+
+// Shuffle random đáp án
+    const shuffled = q.options.map((opt, idx) => ({ opt, idx }))
+      .sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((item) => {
+      const isCorrect = item.idx === q.a ? 1 : 0;
+      const id = `q${i}_opt${item.idx}`;
+      opts.innerHTML += `
+        <label for="${id}">
+          <input type="radio" id="${id}" name="q${i}" data-correct="${isCorrect}">
+          ${item.opt}
+        </label><br>`;
+    });
+
+    div.appendChild(opts);
+    quizForm.appendChild(div);
+  });                   
 
 /* ===== Nộp bài ===== */
 function submitQuiz(e) {
@@ -306,7 +364,7 @@ function submitQuiz(e) {
       username: "Medic log",
       embeds: [
         {
-          title: `📋 Bài Test của ${info.icName} (${info.oocName})`,
+          title: `📋 Bài phỏng vấn của ${info.icName} (${info.oocName})`,
           description: `Điểm trắc nghiệm: **${score}/${questions.length}**`,
           color: 15844367,
           fields: [
@@ -323,7 +381,7 @@ function submitQuiz(e) {
 
   const container = document.querySelector(".container");
   container.innerHTML = `
-    <h2>✅ Bài test đã được gửi!</h2>
+    <h2>✅ Bài phỏng vấn đã được gửi!</h2>
     <p>Thông tin và phần trả lời đã được chuyển về <b>Ban Quản Trị MEDIC</b> để chấm điểm.<br>
     Vui lòng chờ kết quả ứng tuyển trong thời gian sớm nhất.</p>
   `;
