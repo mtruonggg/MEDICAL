@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đơn Ứng Tuyển Medic</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0; padding: 0; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .container {
+      width: 85%; max-width: 950px; background: #fff;
+      padding: 30px 40px; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    h1 { text-align: center; margin-bottom: 20px; background: linear-gradient(90deg,#667eea,#764ba2);
+         -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    label { font-weight: 600; margin-top: 12px; display: block; color: #333; }
+    input, select, textarea {
+      width: 100%; padding: 10px; margin-top: 6px;
+      border: 1px solid #ddd; border-radius: 8px; font-size: 15px; transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #667eea; outline: none; box-shadow: 0 0 5px rgba(102,126,234,0.4);
+    }
+    button {
+      background: linear-gradient(90deg,#667eea,#764ba2); color: white;
+      padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
+      margin-top: 20px; font-size: 16px; font-weight: 600; width: 100%; transition: 0.3s;
+    }
+    button:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+    button:disabled { background:#aaa; cursor:not-allowed; box-shadow:none; transform:none; }
+    .question { margin: 18px 0; padding: 18px; border-radius: 12px; background:#f9f9fb;
+                border-left: 5px solid #667eea; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+    .question p { font-weight: 600; margin-bottom: 8px; }
+    .options label { display: block; margin: 6px 0; cursor: pointer; }
+    #popup {
+      display: none; position: fixed; top:0;left:0;right:0;bottom:0;
+      background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 999;
+    }
+    #popup .box {
+      background: #fff; padding: 25px 35px; border-radius: 14px; text-align: center;
+      max-width: 420px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); animation: scaleIn 0.4s ease;
+    }
+    @keyframes scaleIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes popIn { from{transform:scale(0.7);opacity:0;} to{transform:scale(1);opacity:1;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ĐƠN ỨNG TUYỂN MEDIC</h1>
+
+    <!-- Form thông tin ứng viên -->
+    <form id="infoForm" onsubmit="event.preventDefault(); startQuiz();">
+      <label>IC Name:</label>
+      <input type="text" id="icName" required>
+      <label>OOC Name:</label>
+      <input type="text" id="oocName" required>
+      <label>Tuổi:</label>
+      <input type="number" id="age" required>
+      <label>Giới tính:</label>
+      <select id="gender" required>
+        <option value="">-- Chọn giới tính --</option>
+        <option>Nam</option><option>Nữ</option><option>Khác</option>
+      </select>
+      <label>Discord:</label>
+      <input type="text" id="discord" required>
+      <label>Kinh nghiệm RP (nếu có):</label>
+      <textarea id="exp" rows="3"></textarea>
+      <button type="submit">🚑 Bắt đầu Bài Test</button>
+    </form>
+
+    <!-- Bài quiz -->
+    <form id="quizForm" style="display:none;"></form>
+    <button id="submitBtn" style="display:none;" onclick="submitQuiz(event)">✅ Nộp Bài</button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup">
+    <div class="box">
+      <p>❌ Vui lòng điền đầy đủ thông tin trước khi bắt đầu!</p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+
+<!-- Hộp hiển thị thời gian -->
+<div id="timerBox" style="
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  margin:20px auto;
+  padding:10px 20px;
+  background:#222;
+  color:#00ff00;
+  border-radius:10px;
+  width:max-content;
+  box-shadow:0 0 10px rgba(0,0,0,0.5);
+">
+  ⏰ Thời gian còn lại: <span id="timer">45:00</span>
+</div>
+
+<script>
+/* ========== 25 CÂU HỎI TRẮC NGHIỆM ========== */
+const medicQuestions = [
+  { q: "Khi kiểm tra mạch của bệnh nhân, vị trí hay dùng nhất là?", options: ["Cổ tay", "Trán", "Bụng", "Vai"], a: 0 },
+  { q: "Khi bệnh nhân co giật, Medic nên?", options: ["Giữ an toàn, không nhét vật vào miệng", "Giữ chặt tay chân", "Cho uống thuốc ngay", "Lắc mạnh để tỉnh"], a: 0 },
+  { q: "Khi đưa bệnh nhân vào bệnh viện, Medic cần làm gì trước?", options: ["Bàn giao cho bác sĩ, báo tình trạng", "Đi về luôn", "Ngồi nghỉ", "Đợi công an"], a: 0 },
+  { q: "Băng tam giác thường dùng để?", options: ["Cố định gãy xương, băng vết thương", "Đo huyết áp", "Tiêm thuốc", "Khử trùng"], a: 0 },
+  { q: "Trước khi tiêm thuốc, Medic phải?", options: ["Kiểm tra liều, hạn sử dụng", "Tiêm ngay", "Hỏi ý kiến cảnh sát", "Không cần kiểm tra"], a: 0 },
+  { q: "Khi bệnh nhân nôn ra máu, bước xử trí đầu tiên?", options: ["Đặt nằm nghiêng an toàn", "Cho uống nước", "Đứng dậy vận động", "Bỏ qua"], a: 0 },
+  { q: "Máy đo SpO2 dùng để?", options: ["Đo nồng độ oxy trong máu", "Đo nhịp tim", "Đo huyết áp", "Đo nhiệt độ"], a: 0 },
+  { q: "Medic khi lái xe cần tuân thủ?", options: ["Luật giao thông + bật còi ưu tiên", "Muốn chạy sao cũng được", "Chạy nhanh nhất có thể", "Đua với police"], a: 0 },
+  { q: "Trẻ em bất tỉnh cần CPR như thế nào?", options: ["Ép ngực nhẹ hơn, 1 tay hoặc 2 ngón tay", "Ép mạnh như người lớn", "Không cần CPR", "Chờ tự tỉnh"], a: 0 },
+  { q: "Khi vận chuyển bệnh nhân cột sống nghi ngờ chấn thương, cần?", options: ["Cố định trên ván cứng", "Kéo lên xe", "Bế vác trên vai", "Cho ngồi ghế"], a: 0 },
+  { q: "Túi y tế cá nhân Medic luôn phải có?", options: ["Băng gạc, thuốc cơ bản, găng tay", "Đồ ăn", "Vũ khí", "Điện thoại"], a: 0 },
+  { q: "Medic gặp người dân chửi bới, thái độ đúng là?", options: ["Giữ bình tĩnh, chuyên nghiệp", "Cãi nhau lại", "Đánh nhau", "Bỏ đi"], a: 0 },
+  { q: "Khi hỗ trợ police trong tình huống combat, Medic nên?", options: ["Chỉ cấp cứu sau khi an toàn", "Xông vào combat", "Mang súng hỗ trợ", "Từ chối cứu"], a: 0 },
+  { q: "Trong RP, Medic có thể giả chết để troll không?", options: ["Không", "Có", "Tuỳ thích", "Khi vui"], a: 0 },
+  { q: "Việc ghi log cấp cứu (log sổ bệnh án) giúp?", options: ["Theo dõi ca cứu, minh bạch RP", "Không có tác dụng", "Để khoe", "Để bán"], a: 0 },
+  { q: "VD nào sau đây là đúng IC?", options: ["Giới thiệu tên nhân vật trong RP", "Nói 'lag quá' trong game", "Chat OOC trong IC", "Xin admin revive"], a: 0 },
+  { q: "VD nào sau đây là OOC?", options: ["Nói 'tôi bị disconnect'", "Kêu đau bụng IC", "RP gọi bác sĩ", "Hỏi tên nhân vật"], a: 0 },
+  { q: "Khi bị dí súng vào đầu, Fear RP đúng là?", options: ["Giơ tay, hợp tác", "Lấy súng bắn trả", "Chạy ngay", "Chửi lại"], a: 0 },
+  { q: "Fail RP nghĩa là?", options: ["Hành động sai quy tắc RP", "RP thành công", "Thất bại ngoài đời", "Làm hỏng combat"], a: 0 },
+  { q: "RDM (Random Death Match) là gì?", options: ["Giết người không lý do RP", "Đấu súng theo giải", "Ngã chết ngẫu nhiên", "Test server"], a: 0 },
+  { q: "VD nào là Power Gaming?", options: ["RP bê nguyên xe hơi 1 mình", "Gọi cấp cứu", "Đeo băng bó", "Uống nước"], a: 0 },
+  { q: "VD nào là Meta Gaming?", options: ["Đọc chat OOC để tìm đối thủ", "RP hỏi tên", "Nghe giới thiệu IC", "Đeo bảng tên"], a: 0 },
+  { q: "Combat Logging bị xử lý thế nào?", options: ["Bị warn/ban", "Được thưởng", "Không sao", "Được revive"], a: 0 },
+  { q: "Trong RP, dùng /me để?", options: ["Mô tả hành động nhân vật", "Chat riêng", "Nói chuyện OOC", "Đánh giá server"], a: 0 },
+  { q: "Nếu đồng đội Fail RP, bạn nên?", options: ["Nhắc nhở, báo cáo OOC nếu cần", "Hùa theo", "Giả vờ không thấy", "Chửi IC"], a: 0 }
+];
+
+const scenarios = [
+  { q: "Bạn đang cấp cứu thì bệnh nhân disconnect giữa chừng, bạn sẽ RP thế nào?" },
+  { q: "Một người bị tai nạn nhưng cố tình troll, không hợp tác, bạn xử lý ra sao?" },
+  { q: "Trong lúc cứu người, police yêu cầu rời khỏi hiện trường ngay, bạn RP thế nào?" },
+  { q: "Có người giả vờ Medic để troll, bạn sẽ phản ứng và RP thế nào?" },
+  { q: "Bạn gặp 2 bệnh nhân cãi nhau, một người từ chối chữa trị, bạn xử lý thế nào?" }
+];
+
+let submitted = false;
+
+// ====== ĐỌC CÂU HỎI BẰNG GIỌNG NÓI ======
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // tránh chồng tiếng
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "vi-VN";  
+    msg.rate = 1;        
+    msg.pitch = 1;       
+    window.speechSynthesis.speak(msg);
+  } else {
+    console.warn("Trình duyệt không hỗ trợ SpeechSynthesis API");
+  }
+}
+
+let currentQuestionIndex = 0; // đang ở câu số mấy
+let allQuestions = [];        // chứa cả trắc nghiệm + tình huống
+
+/* ================= BẮT ĐẦU QUIZ (đọc từng câu) ================= */
+function startQuiz() {
+  const icName = document.getElementById("icName").value.trim();
+  const oocName = document.getElementById("oocName").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value.trim();
+  const discord = document.getElementById("discord").value.trim();
+
+  if (!icName || !oocName || !age || !gender || !discord) {
+    document.getElementById("popup").style.display = "flex";
+    return;
+  }
+
+startTimer();
+
+  document.querySelectorAll("#infoForm input,#infoForm select,#infoForm textarea,#infoForm button")
+    .forEach(el => el.disabled = true);
+  document.getElementById("infoForm").style.opacity = "0.6";
+
+  const quizForm = document.getElementById("quizForm");
+  quizForm.innerHTML = "";
+  quizForm.style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
+
+  // Gom tất cả câu hỏi
+  allQuestions = [];
+
+  medicQuestions.forEach((q,i)=>{
+    allQuestions.push({type:"mcq", q, index:i});
+    const div = document.createElement("div");
+    div.className = "question";
+    div.style.display = "none"; // ẩn hết, chỉ hiện từng câu
+    div.innerHTML = `
+      <p><b>${i+1}. ${q.q}</b></p>
+    `;
+    const opts = document.createElement("div"); 
+    opts.className="options";
+
+    q.options.map((opt,idx)=>({opt,idx}))
+      .sort(()=>Math.random()-0.5)
+      .forEach(item=>{
+        const isCorrect = item.idx===q.a?1:0;
+        opts.innerHTML += `
+          <label>
+            <input type="radio" name="q${i}" data-correct="${isCorrect}"> ${item.opt}
+          </label>`;
+      });
+
+    div.appendChild(opts);
+    quizForm.appendChild(div);
+  });
+
+  scenarios.forEach((s,i)=>{
+    allQuestions.push({type:"scenario", q:s, index:i});
+    const div=document.createElement("div");
+    div.className="question";
+    div.style.display="none";
+    div.innerHTML=`
+      <p><b>${medicQuestions.length+i+1}. ${s.q}</b></p>
+      <textarea name="s${i}" rows="3" placeholder="Nhập câu trả lời RP..."></textarea>`;
+    quizForm.appendChild(div);
+  });
+
+  // Bắt đầu với câu đầu tiên
+  showQuestion(0);
+}
+
+function showQuestion(i) {
+  document.querySelectorAll(".question").forEach(q=>q.style.display="none");
+  const questionDivs = document.querySelectorAll(".question");
+  if (i < questionDivs.length) {
+    questionDivs[i].style.display = "block";
+    const text = allQuestions[i].q.q || allQuestions[i].q; // lấy nội dung
+    speak(`${i+1}. ${text}`);
+
+    if (allQuestions[i].type === "mcq") {
+      questionDivs[i].querySelectorAll("input[type=radio]").forEach(radio=>{
+        radio.addEventListener("change", ()=> {
+          currentQuestionIndex++;
+          showQuestion(currentQuestionIndex);
+        });
+      });
+    } else if (allQuestions[i].type === "scenario") {
+      const textarea = questionDivs[i].querySelector("textarea");
+      textarea.addEventListener("keydown", (e)=>{
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          currentQuestionIndex++;
+          showQuestion(currentQuestionIndex);
+        }
+      });
+    }
+  }
+}
+
+let timeLeft = 45 * 60; // 45 phút
+let timerInterval;
+
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("⏰ Hết giờ! Bài sẽ được tự động nộp.");
+      submitQuiz(new Event('submit'));
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(timeLeft / 60);
+  const sec = timeLeft % 60;
+
+  const timerEl = document.getElementById("timer");
+  timerEl.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+
+  const box = document.getElementById("timerBox");
+
+  // Đổi màu theo mốc thời gian
+  if (timeLeft <= 60) {
+    box.style.color = "#ff0000"; // còn <1 phút -> đỏ
+  } else if (timeLeft <= 5 * 60) {
+    box.style.color = "#ffaa00"; // còn <5 phút -> cam
+  } else {
+    box.style.color = "#00ff00"; // còn nhiều -> xanh
+  }
+}
+/* ================= NỘP QUIZ ================= */
+function submitQuiz(e) {
+  e.preventDefault();
+  if (submitted) return;
+  submitted = true;
+
+  const btn=document.getElementById("submitBtn");
+  btn.disabled=true; btn.innerText="Đang gửi...";
+
+  let score=0;
+  medicQuestions.forEach((q,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    if(sel && sel.dataset.correct==="1") score++;
+  });
+
+  const scenarioAnswers=scenarios.map((s,i)=>({
+    question:s.q, answer:document.querySelector(`textarea[name="s${i}"]`).value
+  }));
+
+  const info={
+    icName:document.getElementById("icName").value,
+    oocName:document.getElementById("oocName").value,
+    age:document.getElementById("age").value,
+    gender:document.getElementById("gender").value,
+    discord:document.getElementById("discord").value,
+    exp:document.getElementById("exp").value,
+    score, total:medicQuestions.length,
+    scenarios:scenarioAnswers
+  };
+
+  localStorage.setItem("quizResult",JSON.stringify(info));
+
+  // ===== Gửi Discord Webhook =====
+  const webhookURL="https://discord.com/api/webhooks/1419662336272236654/MMr1GaG1N5ULoxT3xcZXY-SIaknPG4IDLFHbmILT9WeCA-OirDoEPZ-KxJNeC2kBCxSN"; 
+  const embeds=scenarioAnswers.map((s,idx)=>({
+    title:`📌 Tình huống ${idx+1}`,
+    description:`**Câu hỏi:** ${s.question}\n**Trả lời:** ${s.answer||"_(trống)_"}`
+  }));
+
+  fetch(webhookURL,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      content:"📢 Có **bài phỏng vấn mới** cần chấm điểm!",
+      username:"Medic log",
+      embeds:[
+        {
+          title:`📋 Bài phỏng vấn của ${info.icName} (${info.oocName})`,
+          description:`Điểm trắc nghiệm: **${score}/${medicQuestions.length}**`,
+          color:3447003,
+          fields:[
+            {name:"Discord",value:info.discord,inline:true},
+            {name:"Tuổi",value:info.age,inline:true},
+            {name:"Giới tính",value:info.gender,inline:true},
+            {name:"Kinh nghiệm",value:info.exp||"Không có"}
+          ]
+        },
+        ...embeds
+      ]
+    })
+  }).catch(err=>console.error("Webhook error:",err));
+
+  // ===== UI hiển thị kết quả đẹp mắt =====
+  document.querySelector(".container").innerHTML=`
+    <div style="text-align:center; padding:30px;">
+      <h2 style="font-size:28px; background:linear-gradient(90deg,#667eea,#764ba2);
+                 -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+        ✅ Bài phỏng vấn đã được gửi!
+      </h2>
+      <div style="margin:25px auto; max-width:420px; padding:20px;
+                  border-radius:16px; background:linear-gradient(135deg,#667eea,#764ba2);
+                  color:white; font-size:20px; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,0.25);
+                  animation:popIn 0.6s ease;">
+        🌟 Điểm trắc nghiệm của bạn: <br>
+        <span style="font-size:34px; font-weight:800;">${score}/${medicQuestions.length}</span>
+      </div>
+      <p style="font-size:16px; margin-top:15px; color:#333;">
+        Thông tin và phần trả lời đã được gửi đến <b>Ban Quản Trị MEDIC</b> để chấm điểm.<br>
+        Vui lòng chờ kết quả ứng tuyển.
+      </p>
+    </div>
+    <style>
+      @keyframes popIn { from { transform:scale(0.7); opacity:0; } to { transform:scale(1); opacity:1; } }
+    </style>
+  `;
+
+  // animate progress bar
+  setTimeout(()=>{
+    document.getElementById("progressBar").style.width = percent+"%";
+  },200);
+}
+
+document.getElementById("quizForm").addEventListener("submit",submitQuiz);
+renderQuiz();
+</script>
+</body>
+</html>
